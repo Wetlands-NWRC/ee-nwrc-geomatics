@@ -1,0 +1,22 @@
+rf tool box
+
+math
+- raster calaculator, ndvi, savi, tassel ratio etc
+datasets
+ - all default image collections
+spatial_filters
+ - pm
+ - guasian
+ - boxcar
+table
+ - class factories for loading feature collection from file and dataframe
+ - sampling
+ - remapping
+ - general algorithms insert xy etc
+
+models
+ - RandomForestModel:
+ - train, predict 
+
+fourier_transform
+terrain_analysis
