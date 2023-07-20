@@ -8,6 +8,8 @@ Harmonics = int
 Dependent = str
 Independent = List[str]
 HarmonicsCollection = ee.ImageCollection
+CosNames = List[str]
+SinName = List[str]
 
 
 class HarmonicsBuilder:
@@ -43,9 +45,10 @@ class HarmonicsBuilder:
         self.col = self.col.map(wrapper)
         return self
 
-    def add_harmonics(self, cycles: Harmonics):
-        cos = [f"cos_{i}" for i in range(1, cycles + 1)]
-        sin = [f"sin_{i}" for i in range(1, cycles + 1)]
+    def add_harmonics(self, cos: CosNames, sin: SinName):
+        if len(cos) != len(sin):
+            raise ValueError("Number of cosines must equal number of sines")
+
         freqs = (len(cos) + len(sin)) // 2
 
         def wrapper(image):
