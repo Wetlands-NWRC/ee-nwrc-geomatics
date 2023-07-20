@@ -1,6 +1,8 @@
-from typing import List
+from typing import List, Dict, Callable
 import ee
 
+from .tsm.fourier import *
+from ..rftbx.rmath import OpticalBandMath
 
 TrainingData = ee.FeatureCollection
 ColumnName = str
@@ -46,5 +48,37 @@ class RandomForestModel:
 
 
 class TimeSeriesModeling:
-    def fourier_transform():
-        pass
+    def fourier_transform(
+        col: ee.ImageCollection, cycles: int = 3, dependent: Dict[str, Callable] = None
+    ) -> ee.ImageCollection:
+        dependent = {"NDVI": OpticalBandMath.ndvi()} if dependent is None else dependent
+
+        cos = [f"cos_{i}" for i in range(1, cycles + 1)]
+        sin = [f"sin_{i}" for i in range(1, cycles + 1)]
+
+        independent = ["constant", "t"] + cos + sin
+        dependent = list(dependent.keys())[0]
+
+        harmbldr = HarmonicsBuilder()
+        harmbldr.builder = col
+        harmbldr.add_dependent(dependent.get("NDVI"))
+        harmbldr.add_constant()
+        harmbldr.add_time()
+        harmbldr.add_harmonics(cycles)
+        harmbldr.build()
+
+        trend = HarmonicTrend(col=harmbldr.builder, ind=independent, dep=dependent)
+
+        ftbldr = FourierTransform()
+        ftbldr.builder = col
+        ftbldr.add_coefficients(trend.harmonic_trend_coefficients.select(".*coeff"))
+
+        # add amplitude and phase for n number of harmonics
+        for cycle in cycles:
+            ftbldr.add_amplitude(cycle)
+            ftbldr.add_phase(cycle)
+
+        ftbldr.build()
+
+        ft_image = ftbldr.builder.median().unitScale(-1, 1)
+        return ft_image.select(".*coeff | amp.* | phase.*")
