@@ -18,3 +18,9 @@ class SpatialFilters:
 
     def gaussian():
         raise NotImplementedError
+
+    def apply(func: callable) -> callable:
+        def apply_inner(image: ee.Image) -> ee.Image:
+            return image.convolve(func)
+
+        return apply_inner
