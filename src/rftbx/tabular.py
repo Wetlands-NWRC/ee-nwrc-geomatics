@@ -3,6 +3,7 @@ import ee
 
 ColumnName = str
 ColumnMapping = Union[Dict[str, int], ee.Dictionary]
+Lookup = ee.Dictionary
 
 
 class TabularFunctions:
@@ -30,3 +31,17 @@ class TabularFunctions:
             )
 
         return insert_xy_inner
+
+    def lookup(collection: ee.FeatureCollection, on: ColumnName) -> Lookup:
+        keys = collection.aggregate_array(on).distinct().sort()
+        values = ee.List.sequence(1, keys.size())
+        return ee.Dictionary.fromLists(keys, values)
+
+    def lookup_2_feature_collection(lookup: Lookup):
+        keys = lookup.keys()
+        values = lookup.values()
+        return ee.FeatureCollection(
+            keys.zip(values).map(
+                lambda x: ee.Feature(None, {"key": x.get(0), "value": x.get(1)})
+            )
+        )
