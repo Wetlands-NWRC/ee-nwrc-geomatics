@@ -43,3 +43,8 @@ class RandomForestModel:
 
     def validate(self, validationData) -> ee.FeatureCollection:
         return validationData.classify(self._model)
+
+
+class TimeSeriesModeling:
+    def fourier_transform():
+        pass
