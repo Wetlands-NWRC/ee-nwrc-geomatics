@@ -9,7 +9,7 @@ class SpatialFilters:
         units: str = None,
         normalize: bool = True,
         magnitude: float = 1.0,
-    ) -> ee.ComputedObject:
+    ) -> Callable:
         """Boxcar filter."""
         units = "pixels" if units is None else units
         kernel = ee.Kernel.square(radius, units, normalize, magnitude)
@@ -24,7 +24,7 @@ class SpatialFilters:
         units: str = None,
         normalize: bool = True,
         magnitude: float = 1.0,
-    ) -> callable:
+    ) -> Callable:
         """creates a Gaussian kernel"""
         units = "pixels" if units is None else units
         kernel = ee.Kernel.gaussian(radius, units, normalize, magnitude)
@@ -34,7 +34,7 @@ class SpatialFilters:
 
         return apply
 
-    def peron_malik(K: float = 3.5, iterations: int = 10, method: int = 2):
+    def peron_malik(K: float = 3.5, iterations: int = 10, method: int = 2) -> Callable:
         def apply(img: ee.Image):
             dxW = ee.Kernel.fixed(3, 3, [[0, 0, 0], [1, -1, 0], [0, 0, 0]])
 
