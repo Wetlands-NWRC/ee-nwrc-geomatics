@@ -1,3 +1,5 @@
+from typing import Callable
+
 import ee
 
 S2Image = ee.Image
@@ -22,7 +24,7 @@ class CloudMasks:
 class S2Cloudless:
     """A class the contains methods for cloud masking Sentinel-2 images."""
 
-    def add_cloud_bands(cloud_prb_thresh: int = 50):
+    def add_cloud_bands(cloud_prb_thresh: int = 50) -> Callable:
         def wrapper(img: S2Image):
             cld_prb = ee.Image(img.get("s2cloudless")).select("probability")
             is_cloud = cld_prb.gt(cloud_prb_thresh).rename("clouds")
@@ -34,7 +36,7 @@ class S2Cloudless:
         nir_drk_thresh: float = 0.15,
         cld_prj_dist: float = 1.0,
         sr_band_scale: float = 1e4,
-    ):
+    ) -> Callable:
         def wrapper(img: S2Image):
             # Identify water pixels from the SCL band.
             not_water = img.select("SCL").neq(6)
@@ -70,7 +72,7 @@ class S2Cloudless:
 
         return wrapper
 
-    def add_cld_shadow_mask(buffer: int = 50):
+    def add_cld_shadow_mask(buffer: int = 50) -> Callable:
         def wrapper(img: S2Image):
             # Combine cloud and shadow mask, set cloud and shadow as value 1, else 0.
             is_cld_shdw = img.select("clouds").add(img.select("shadows")).gt(0)
@@ -89,7 +91,7 @@ class S2Cloudless:
 
         return wrapper
 
-    def apply_shadow_mask() -> callable:
+    def apply_shadow_mask() -> Callable:
         def wrapper(img: S2Image):
             # Subset the cloudmask band and invert it so clouds/shadow are 0, else 1.
             not_cld_shdw = img.select("cloudmask").Not()
