@@ -1,7 +1,9 @@
-from typing import Tuple, Union, List
+from typing import Callable, Tuple, Union, List
 import ee
 
 from ..rmath import OpticalBandMath
+from ..datasets import Sentinel2
+from ..cmasking import CloudMasks
 
 OpticalDataset = ee.ImageCollection
 BandName = str
@@ -11,7 +13,7 @@ Pattern = Union[str, List[str], List[int]]
 
 class OpticalDatasetBuilder:
     def __init__(self) -> None:
-        self.builder: OpticalDataset = None
+        self.builder: OpticalDataset = Sentinel2()
 
     def add_ndvi(self, nir: BandName, red: BandName, ndvi_name: str = None):
         self.builder = self.builder.map(OpticalBandMath.ndvi(nir, red, ndvi_name))
@@ -48,6 +50,11 @@ class OpticalDatasetBuilder:
         Bands can be selected by name or index.
         """
         self.builder = self.builder.select(bands)
+        return self
+
+    def add_cloud_mask(self, cloud_mask: Callable = None):
+        cloud_mask = CloudMasks.s2_cloud_mask if cloud_mask is None else cloud_mask
+        self.builder = self.builder.map(cloud_mask)
         return self
 
     def build(self):
