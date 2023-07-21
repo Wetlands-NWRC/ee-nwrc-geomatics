@@ -1,11 +1,11 @@
-from typing import Tuple, Callable
+from typing import Tuple, Callable, Union, List
 import ee
 
 from ..rmath import SARBandMath
 
 BandName = str
 DateConstraint = Tuple[str, str]
-
+Pattern = Union[str, List[str]]
 
 class RadarBuilder:
     def __init__(self) -> None:
@@ -33,6 +33,10 @@ class RadarBuilder:
 
     def add_meta_filters(self, meta_filters: ee.Filter):
         self.builder = self.builder.filter(meta_filters)
+        return self
+
+    def add_band_selection(self, bands: Pattern):
+        self.builder = self.builder.select(bands)
         return self
 
     def build(self):
