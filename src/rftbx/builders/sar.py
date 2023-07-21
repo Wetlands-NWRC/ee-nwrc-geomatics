@@ -7,6 +7,7 @@ BandName = str
 DateConstraint = Tuple[str, str]
 Pattern = Union[str, List[str]]
 
+
 class RadarBuilder:
     def __init__(self) -> None:
         self.builder: ee.ImageCollection = None
