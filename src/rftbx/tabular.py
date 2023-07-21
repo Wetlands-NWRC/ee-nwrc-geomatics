@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Dict, Union
 import ee
 
@@ -45,3 +46,11 @@ class TabularFunctions:
                 lambda x: ee.Feature(None, {"key": x.get(0), "value": x.get(1)})
             )
         )
+
+@dataclass
+class TrainingData:
+    col: ee.FeatureCollection
+    lookup: Lookup = None
+
+
+
