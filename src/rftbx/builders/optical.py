@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union, List
 import ee
 
 from ..rmath import OpticalBandMath
@@ -6,6 +6,7 @@ from ..rmath import OpticalBandMath
 OpticalDataset = ee.ImageCollection
 BandName = str
 DateConstraint = Tuple[str, str]
+Pattern = Union[str, List[str], List[int]]
 
 
 class OpticalDatasetBuilder:
@@ -40,6 +41,13 @@ class OpticalDatasetBuilder:
         Represent and List of Filters that have been ANDed together.
         """
         self.builder = self.builder.filter(meta_filters)
+        return self
+
+    def add_band_selection(self, bands: Pattern):
+        """Selects the bands in the dataset.
+        Bands can be selected by name or index.
+        """
+        self.builder = self.builder.select(bands)
         return self
 
     def build(self):
