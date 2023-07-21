@@ -10,7 +10,6 @@ spatial_filters
  - boxcar
 table
  - class factories for loading feature collection from file and dataframe
- - sampling
  - remapping
  - general algorithms insert xy etc
 
@@ -18,5 +17,5 @@ models
  - RandomForestModel:
  - train, predict 
 
-fourier_transform
+fourier_transform Done-needs testing
 terrain_analysis
