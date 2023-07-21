@@ -34,7 +34,7 @@ class TerrainAnalysisBuilder:
         return self
 
     def build(self):
-        ta = tagee.TerrainAnalysis(self.builder.dataset, self.builder.rectangle)
+        ta = tagee.terrainAnalysis(self.builder.dataset, self.builder.rectangle)
         self.builder.dataset = (
             ta.select(self.builder.band_selectors)
             if self.builder.band_selectors is not None
