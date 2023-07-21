@@ -17,13 +17,12 @@ class Filters:
 
 
 class S1Filters:
-    @staticmethod
-    def s1_dual_pol(pol: Polarization = None) -> ee.Filter:
+    def s1_dual_pol(self, pol: Polarization = None) -> ee.Filter:
         pol = ["VV", "VH"] if pol is None else pol
         return ee.Filter.listContains("transmitterReceiverPolarisation", pol[0]).And(
             ee.Filter.listContains("transmitterReceiverPolarisation", pol[1])
         )
 
-    @staticmethod
-    def s1_single_pol(pol: str) -> ee.Filter:
+
+    def s1_single_pol(self, pol: str) -> ee.Filter:
         return ee.Filter.listContains("transmitterReceiverPolarisation", pol)
