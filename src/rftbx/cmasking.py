@@ -23,21 +23,24 @@ class CloudMasks:
 
 class S2Cloudless:
     """A class the contains methods for cloud masking Sentinel-2 images."""
+    def __init__(self, cld_col: ee.ImageCollection):
+        self.cld_col = cld_col
 
-    def add_cloud_bands(self, cloud_prb_thresh: int = 50) -> Callable:
+    def add_cloud_bands(self, cloud_prb_thresh: int = 50):
         def wrapper(img: S2Image):
             cld_prb = ee.Image(img.get("s2cloudless")).select("probability")
             is_cloud = cld_prb.gt(cloud_prb_thresh).rename("clouds")
             return img.addBands([cld_prb, is_cloud])
 
-        return wrapper
+        self.cld_col = self.cld_col.map(wrapper)
+        return self
 
     def add_shadow_bands(
         self,
         nir_drk_thresh: float = 0.15,
         cld_prj_dist: float = 1.0,
         sr_band_scale: float = 1e4,
-    ) -> Callable:
+    ):
         def wrapper(img: S2Image):
             # Identify water pixels from the SCL band.
             not_water = img.select("SCL").neq(6)
@@ -71,7 +74,8 @@ class S2Cloudless:
             # Add dark pixels, cloud projection, and identified shadows as image bands.
             return img.addBands(ee.Image([dark_pixels, cld_proj, shadows]))
 
-        return wrapper
+        self.cld_col = self.cld_col.map(wrapper)
+        return self
 
     def add_cld_shadow_mask(self, buffer: int = 50) -> Callable:
         def wrapper(img: S2Image):
@@ -90,9 +94,10 @@ class S2Cloudless:
             # Add the final cloud-shadow mask to the image.
             return img.addBands(is_cld_shdw)
 
-        return wrapper
+        self.cld_col = self.cld_col.map(wrapper)
+        return self
 
-    def apply_shadow_mask(self) -> Callable:
+    def apply_shadow_mask(self):
         def wrapper(img: S2Image):
             # Subset the cloudmask band and invert it so clouds/shadow are 0, else 1.
             not_cld_shdw = img.select("cloudmask").Not()
@@ -100,4 +105,5 @@ class S2Cloudless:
             # Subset reflectance bands and update their masks, return the result.
             return img.select("B.*").updateMask(not_cld_shdw)
 
-        return wrapper
+        self.cld_col = self.cld_col.map(wrapper)
+        return self
