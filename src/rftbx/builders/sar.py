@@ -6,7 +6,7 @@ from ..rmath import SARBandMath
 BandName = str
 DateConstraint = Tuple[str, str]
 Pattern = Union[str, List[str]]
-
+# TODO - add a class mehotds called spatial_filter = geometry and temportal_filer = date, add_noise_reducer
 
 class RadarBuilder:
     def __init__(self) -> None:

@@ -7,13 +7,19 @@ Polarization = List[str, str]
 class Filters:
     def __init__(self):
         self._filters = []
+        self._filter = None
+
+    @property
+    def filter(self):
+        return self._filter
 
     def add_filter(self, filter: ee.Filter):
         self._filters.append(filter)
         return self
 
-    def combine(self) -> ee.Filter:
-        return ee.Filter(self._filters)
+    def combine(self):
+        self._filter = ee.Filter(self._filters)
+        return self
 
 
 class S1Filters:

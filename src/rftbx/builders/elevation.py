@@ -14,8 +14,15 @@ class ElevationDataset:
 
 
 class ElevationBuilder:
-    pass
+    def __init__(self):
+        self.builder: ee.Image = NASADEM()
 
+    def despckel(self, filter: Callable):
+        self.builder = self.builder.map(filter)
+        return self
+
+    def build(self):
+        return self
 
 class TerrainAnalysisBuilder:
     def __init__(self) -> None:

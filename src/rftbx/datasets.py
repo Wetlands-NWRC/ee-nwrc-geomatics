@@ -16,9 +16,9 @@ class ALOS2(ee.ImageCollection):
         super().__init__("JAXA/ALOS/PALSAR/YEARLY/SAR")
 
 
-class NASADEM(ee.ImageCollection):
+class NASADEM(ee.Image):
     def __init__(self):
-        super().__init__("NASA/NASADEM_HGT/001")
+        super().__init__("NASA/NASADEM_HGT/001", None)
 
 
 class DataCube(ee.ImageCollection):

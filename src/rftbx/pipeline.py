@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class IRandomForestPipeline(metaclass=ABCMeta):
-
+    """ A class that defines the interface for a random forest pipeline. """
     @classmethod
     def __subclasshook__(cls, subclass):
         return (hasattr(subclass, 'preprocessing') and
