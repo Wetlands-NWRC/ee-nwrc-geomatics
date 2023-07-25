@@ -2,13 +2,36 @@ import ee
 
 
 class Sentinel1(ee.ImageCollection):
-    def __init__(self):
-        super().__init__("COPERNICUS/S1_GRD")
+    def __init__(self, args=None):
+        args = args if args is not None else "COPERNICUS/S1_GRD"
+        super().__init__(args)
 
 
 class Sentinel2(ee.ImageCollection):
+
+    @classmethod
+    def toa(cls):
+        """ Factory method for Sentinel2 TOA image collection """
+        return cls("COPERNICUS/S2")
+
+    @classmethod
+    def probability(cls):
+        """ Factory method for Sentinel2 cloud probability image collection"""
+        return cls("COPERNICUS/S2_CLOUD_PROBABILITY")
+
+    @classmethod
+    def sr(cls):
+        """ Factory method for Sentinel2 SR image collection """
+        return cls("COPERNICUS/S2_SR")
+
+    def __init__(self, agrs=None):
+        args = agrs if agrs is not None else "COPERNICUS/S2_SR"
+        super().__init__(args)
+
+
+class Sentinel2CloudProbability(ee.ImageCollection):
     def __init__(self):
-        super().__init__("COPERNICUS/S2_SR")
+        super().__init__("COPERNICUS/S2_CLOUD_PROBABILITY")
 
 
 class ALOS2(ee.ImageCollection):
