@@ -1,10 +1,19 @@
 import ee
 
+from .rmath import *
+
 
 class Sentinel1(ee.ImageCollection):
+
     def __init__(self, args=None):
         args = args if args is not None else "COPERNICUS/S1_GRD"
         super().__init__(args)
+
+    def addRatio(self, ratio: Ratio):
+        return self.map(ratio)
+
+    def despekle(self, filter):
+        return self.map(filter)
 
 
 class Sentinel2(ee.ImageCollection):
@@ -28,10 +37,11 @@ class Sentinel2(ee.ImageCollection):
         args = agrs if agrs is not None else "COPERNICUS/S2_SR"
         super().__init__(args)
 
+    def addNDVI(self, ndvi: NDVI):
+        return self.map(ndvi)
 
-class Sentinel2CloudProbability(ee.ImageCollection):
-    def __init__(self):
-        super().__init__("COPERNICUS/S2_CLOUD_PROBABILITY")
+    def addSAVI(self, savi: SAVI):
+        return self.map(savi)
 
 
 class ALOS2(ee.ImageCollection):
@@ -42,6 +52,8 @@ class ALOS2(ee.ImageCollection):
 class NASADEM(ee.Image):
     def __init__(self):
         super().__init__("NASA/NASADEM_HGT/001", None)
+    def addSlope(self):
+        return self.addBands(ee.Terain.slope(self))
 
 
 class DataCube(ee.ImageCollection):
