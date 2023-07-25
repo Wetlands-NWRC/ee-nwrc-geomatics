@@ -4,7 +4,8 @@ from .datasets import *
 
 from .rmath import *
 
-class DataBuilder(ABC):
+
+class ImageCollectionBuilder(ABC):
     """ the abstract base class for all data builders """
 
     @abstractmethod
@@ -24,27 +25,26 @@ class DataBuilder(ABC):
         pass
 
 
-class SARBuilder(DataBuilder):
+class SARCollectionBuilder(ImageCollectionBuilder):
     """ the abstract base class for all SAR data builders """
-
     @abstractmethod
     def add_ratio(self, numerator: str, denominator: str, ratio_name: str = None):
         pass
 
     @abstractmethod
-    def despekcle(self, filter):
+    def despekle(self, filter):
         pass
 
 
-class OpcialBuilder(DataBuilder):
+class OpticalCollectionBuilder(ImageCollectionBuilder):
     """ the abstract base class for all optical data builders """
-
+    
     @abstractmethod
-    def add_ndvi(self, nir: str, red: str, ndvi_name: str = None):
+    def add_ndvi(self, nir: str = None, red: str = None, ndvi_name: str = None):
         pass
 
     @abstractmethod
-    def add_savi(self, nir: str, red: str, L: float , savi_name: str = None):
+    def add_savi(self, nir: str = None, red: str = None , L: float = 0.5 , savi_name: str = None):
         pass
 
     @abstractmethod
@@ -52,7 +52,7 @@ class OpcialBuilder(DataBuilder):
         pass
 
 
-class S1Builder(SARBuilder):
+class SARBuilder(SARCollectionBuilder):
     def __init__(self):
         self.builder: ee.ImageCollection = Sentinel1()
 
@@ -78,7 +78,7 @@ class S1Builder(SARBuilder):
         self.builder = self.builder.select(bands)
         return self
 
-    def despekcle(self, filter):
+    def despekle(self, filter):
         self.builder = self.builder.map(filter)
         return self
 
@@ -86,40 +86,7 @@ class S1Builder(SARBuilder):
         return self
 
 
-class ALOSBuilder(SARBuilder):
-    def __init__(self):
-        self.builder: ee.ImageCollection = None
-
-    def add_ratio(self, numerator: str, denominator: str, ratio_name: str = None):
-        self.builder = self.builder.map(
-            SARBandMath.ratio(numerator, denominator, ratio_name)
-        )
-        return self
-
-    def add_spatial_filter(self, geometry: ee.Geometry):
-        return None
-
-    def add_temporal_filter(self, date_range: tuple):
-        self.builder = self.builder.filterDate(*date_range)
-        return self
-
-    def add_meta_filters(self, meta_filters: ee.Filter):
-        self.builder = self.builder.filter(meta_filters)
-        return self
-
-    def add_band_selection(self, bands: list):
-        self.builder = self.builder.select(bands)
-        return self
-
-    def despekcle(self, filter):
-        self.builder = self.builder.map(filter)
-        return self
-
-    def build(self):
-        return self
-
-
-class S2SRBuilder(OpcialBuilder):
+class OpticalBuilder(OpticalCollectionBuilder):
     def __init__(self):
         self.builder: ee.ImageCollection = None
 
@@ -139,18 +106,33 @@ class S2SRBuilder(OpcialBuilder):
         self.builder = self.builder.select(bands)
         return self
 
-    def add_ndvi(self, nir: str, red: str, ndvi_name: str = None):
-        self.builder = self.builder.map(OpticalBandMath.ndvi(nir, red, ndvi_name))
+    def add_ndvi(self, nir: str = None, red: str = None, ndvi_name: str = None):
+        self.builder = self.builder.map(OpticalBandMath.ndvi(nir, red))
         return self
 
     def add_tassel_cap(self):
         self.builder = self.builder.map(OpticalBandMath.tassel_cap())
         return self
 
-    def add_savi(self, nir: str, red: str, L: float , savi_name: str = None):
-        self.builder = self.builder.map(OpticalBandMath.savi(nir, red, L, savi_name))
+    def add_savi(self, nir: str = None, red: str = None, L: float = 0.5, savi_name: str = None):
+        self.builder = self.builder.map(OpticalBandMath.savi(nir, red, L))
         return self
 
     def build(self):
         return self
 
+
+class ImageBuilder(ABC):
+    pass
+
+
+class ElevationBuilder(ImageBuilder):
+    def __init__(self):
+        self.builder: ee.Image = NASADEM()
+
+    def despckel(self, filter):
+        self.builder = self.builder.map(filter)
+        return self
+
+    def build(self):
+        return self

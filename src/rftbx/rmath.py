@@ -1,8 +1,12 @@
+from abc import ABC, abstractmethod
 from typing import Any
 import ee
 
 
 BandName = str
+
+# TODO - Update Band Math to be Object Oriented
+# TODO - Create an Abstract Base Class for Band Math
 
 
 class OpticalBandMath:
@@ -11,7 +15,8 @@ class OpticalBandMath:
         red = "B4" if red is None else red
 
         def wrapper(image: ee.Image) -> ee.Image:
-            return image.normalizedDifference([nir, red]).rename("NDVI")
+            calc = image.normalizedDifference([nir, red]).rename("NDVI")
+            return image.addBands(calc)
 
         return wrapper
 
@@ -20,7 +25,7 @@ class OpticalBandMath:
         red = "B4" if red is None else red
 
         def wrapper(image: ee.Image) -> ee.Image:
-            return image.expression(
+            calc = image.expression(
                 "(1 + L) * (NIR - RED) / (NIR + RED + L)",
                 {
                     "NIR": image.select(nir),
@@ -28,8 +33,9 @@ class OpticalBandMath:
                     "L": L,
                 },
             ).rename("SAVI")
-
+            return image.addBands(calc)
         return wrapper
+
 
     def tassel_cap(
         blue: str = None,
@@ -67,7 +73,7 @@ class OpticalBandMath:
                 .arrayFlatten([["Brightness", "Greenness", "Wetness"]])
             )
 
-            return components_image
+            return image.addBands(components_image)
 
         return wrapper
 
@@ -81,15 +87,3 @@ class SARBandMath:
             return image.addBands(calc)
 
         return wrapper
-
-class Ratio:
-    def __init__(self, num, dem, name):
-        self.num = num
-        self.dem = dem
-        self.name = name
-
-    def __call__(self, image: ee.Image) -> ee.Image:
-        return image.addBands(self.calc())
-
-    def calc(self):
-
