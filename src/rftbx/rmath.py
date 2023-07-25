@@ -73,10 +73,23 @@ class OpticalBandMath:
 
 
 class SARBandMath:
-    def ratio(band1: str, band2: str) -> callable:
+    def ratio(band1: str, band2: str, name: str) -> callable:
         name = f"{band1}/{band2}"
 
         def wrapper(image: ee.Image) -> ee.Image:
-            return image.select(band1).divide(image.select(band2)).rename(name)
+            calc = image.select(band1).divide(image.select(band2)).rename(name)
+            return image.addBands(calc)
 
         return wrapper
+
+class Ratio:
+    def __init__(self, num, dem, name):
+        self.num = num
+        self.dem = dem
+        self.name = name
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return image.addBands(self.calc())
+
+    def calc(self):
+
