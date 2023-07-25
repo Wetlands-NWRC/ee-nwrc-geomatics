@@ -9,6 +9,81 @@ BandName = str
 # TODO - Create an Abstract Base Class for Band Math
 
 
+class BandMath(ABC):
+
+    @abstractmethod
+    def __call__(self, image: ee.Image) -> ee.Image:
+        pass
+
+    @abstractmethod
+    def calc(self, image: ee.Image) -> ee.Image:
+        pass
+
+
+class Ratio(BandMath):
+    def __init__(self):
+        self.numerator: BandName = 'VV'
+        self.demoninator: BandName = 'VH'
+        self.name: str = 'VV/VH'
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return image.addBands(self.calc(image))
+
+    def calc(self, image: ee.Image) -> ee.Image:
+        calc = image.select(self.numerator).divide(image.select(self.demoninator)).rename(self.name)
+        return calc
+
+
+class NDVI(BandMath):
+    def __init__(self):
+        self.nir: BandName = 'B8'
+        self.red: BandName = 'B4'
+        self.name: str = 'NDVI'
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return image.addBands(self.calc(image))
+
+    def calc(self, image: ee.Image) -> ee.Image:
+        calc = image.normalizedDifference([self.nir, self.red]).rename(self.name)
+        return calc
+
+
+class SAVI(BandMath):
+    def __init__(self):
+        self.nir: BandName = 'B8'
+        self.red: BandName = 'B4'
+        self.name: str = 'SAVI'
+        self.L: float = 0.5
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return image.addBands(self.calc(image))
+
+    def calc(self, image: ee.Image) -> ee.Image:
+        calc = image.expression(
+            "(1 + L) * (NIR - RED) / (NIR + RED + L)",
+            {
+                "NIR": image.select(self.nir),
+                "RED": image.select(self.red),
+                "L": self.L,
+            },
+        ).rename(self.name)
+        return calc
+
+
+def addRatio(self, calc: Ratio):
+    return self.map(calc)
+
+
+def addSAVI(self, calc: SAVI):
+    return self.map(calc)
+
+
+def addNDVI(self, calc: NDVI):
+    return self.map(calc)
+
+
+
+
 class OpticalBandMath:
     def ndvi(nir: BandName = None, red: BandName = None) -> callable:
         nir = "B8" if nir is None else nir
