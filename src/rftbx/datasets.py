@@ -1,6 +1,7 @@
 import ee
 
 from .rmath import *
+from .despekle import DespeckleAlgorithm
 
 
 class Sentinel1(ee.ImageCollection):
@@ -12,7 +13,7 @@ class Sentinel1(ee.ImageCollection):
     def addRatio(self, ratio: Ratio):
         return self.map(ratio)
 
-    def despekle(self, filter):
+    def despekle(self, filter: DespeckleAlgorithm):
         return self.map(filter)
 
 
