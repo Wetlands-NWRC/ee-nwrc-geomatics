@@ -1,4 +1,5 @@
 import ee
+from .tabular import TrainingData
 
 Property = str
 
@@ -10,10 +11,12 @@ class SamplingMethods:
         scale: int = 10,
         properties: list[Property] = None,
         tile_scale: int = 16,
-    ) -> ee.FeatureCollection:
-        return image.sampleRegions(
+    ) -> TrainingData:
+        sample = image.sampleRegions(
             collection=regions,
             scale=scale,
             properties=properties,
             tile_scale=tile_scale,
         )
+
+        return TrainingData(sample)
