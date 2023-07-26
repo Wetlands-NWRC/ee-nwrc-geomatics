@@ -31,7 +31,7 @@ class RandomForestModel:
     def model(self):
         return self._model
 
-    def train(
+    def fit(
         self,
         features: TrainingData,
         classProperty: ColumnName,
@@ -40,7 +40,7 @@ class RandomForestModel:
         self._model = self._model.train(features, classProperty, inputProperties)
         return self
 
-    def predict(self, image: ee.Image) -> ee.Image:
+    def apply(self, image: ee.Image) -> ee.Image:
         return image.classify(self._model).uint8()
 
     def validate(self, validationData) -> ee.FeatureCollection:
