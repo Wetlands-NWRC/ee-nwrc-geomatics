@@ -50,13 +50,6 @@ class ALOS2(ee.ImageCollection):
         super().__init__("JAXA/ALOS/PALSAR/YEARLY/SAR")
 
 
-class NASADEM(ee.Image):
-    def __init__(self):
-        super().__init__("NASA/NASADEM_HGT/001", None)
-    def addSlope(self):
-        return self.addBands(ee.Terain.slope(self))
-
-
 class DataCube(ee.ImageCollection):
     SEASON_PREFIX = {"spring": "a_spri_b", "summer": "b_summ_b", "fall": "c_fall_b"}
 
