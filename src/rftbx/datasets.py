@@ -67,3 +67,18 @@ class DataCube(ee.ImageCollection):
     @property
     def fall(self):
         return self.select(f'{self.SEASON_PREFIX["fall"]}.*')
+
+
+class Stack:
+    def __init__(self):
+        self._stack = []
+
+    def add(self, image: ee.Image):
+        if not isinstance(image, ee.Image):
+            raise TypeError("image must be an ee.Image")
+        self._stack.append(image)
+        return self
+
+    def concat(self) -> ee.Image:
+        """ Concatenate all images in the stack """
+        return ee.Image.cat(*self._stack)
