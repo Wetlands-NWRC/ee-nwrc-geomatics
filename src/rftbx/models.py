@@ -1,8 +1,8 @@
-from typing import List, Dict, Callable
+from typing import List, Dict, Union
 import ee
 
 from .tsm.fourier import *
-from ..rftbx.rmath import OpticalBandMath
+from .rmath import OpticalBandMath
 
 TrainingData = ee.FeatureCollection
 ColumnName = str
@@ -40,11 +40,10 @@ class RandomForestModel:
         self._model = self._model.train(features, classProperty, inputProperties)
         return self
 
-    def apply(self, image: ee.Image) -> ee.Image:
-        return image.classify(self._model).uint8()
-
-    def validate(self, validationData) -> ee.FeatureCollection:
-        return validationData.classify(self._model)
+    def apply(self, X: Union[ee.Image, ee.FeatureCollection]) -> ee.Image:
+        if isinstance(X, ee.Image):
+            return X.classify(self._model).uint8()
+        return X.classify(self._model)
 
 
 class TimeSeriesModeling:
