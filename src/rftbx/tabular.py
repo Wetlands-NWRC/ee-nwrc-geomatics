@@ -16,6 +16,8 @@ class TrainingData:
 
     @property
     def lookup(self) -> Lookup:
+        if self.class_property != 'Wetland':
+            self._lookup = self._build_lookup(self.raw, self.class_property)
         return self._lookup
 
     @staticmethod
