@@ -13,14 +13,14 @@ class Sentinel1(ee.ImageCollection):
     def addRatio(self, ratio: Ratio):
         return self.map(ratio)
 
-    def despekle(self, filter: DespeckleAlgorithm):
+    def denoise(self, filter: DespeckleAlgorithm):
         return self.map(filter)
 
 
 class Sentinel2(ee.ImageCollection):
 
     @classmethod
-    def toa(cls):
+    def top_of_atmosphere(cls):
         """ Factory method for Sentinel2 TOA image collection """
         return cls("COPERNICUS/S2")
 
@@ -30,9 +30,25 @@ class Sentinel2(ee.ImageCollection):
         return cls("COPERNICUS/S2_CLOUD_PROBABILITY")
 
     @classmethod
-    def sr(cls):
+    def surface_refelctance(cls):
         """ Factory method for Sentinel2 SR image collection """
         return cls("COPERNICUS/S2_SR")
+
+    @classmethod
+    def s2cloudless(cls, date_range, aoi, cloudly_percent: int = 60):
+        prob = cls.probability().filterDate(date_range[0], date_range[1]).filterBounds(aoi)
+        s2 = cls.sr().filterDate(date_range[0], date_range[1]).filterBounds(aoi).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloudly_percent))
+
+        join = ee.Join.saveFirst('s2cloudless').apply(**{
+            'primary': s2,
+            'secondary': prob,
+            'condition': ee.Filter.equals(**{
+                'leftField': 'system:index',
+                'rightField': 'system:index'
+            })
+        })
+
+        return cls(join)
 
     def __init__(self, agrs=None):
         args = agrs if agrs is not None else "COPERNICUS/S2_SR"
