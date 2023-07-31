@@ -37,7 +37,7 @@ class Sentinel2(ee.ImageCollection):
     @classmethod
     def s2cloudless(cls, date_range, aoi, cloudly_percent: int = 60):
         prob = cls.probability().filterDate(date_range[0], date_range[1]).filterBounds(aoi)
-        s2 = cls.sr().filterDate(date_range[0], date_range[1]).filterBounds(aoi).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloudly_percent))
+        s2 = cls.surface_refelctance().filterDate(date_range[0], date_range[1]).filterBounds(aoi).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloudly_percent))
 
         join = ee.Join.saveFirst('s2cloudless').apply(**{
             'primary': s2,
