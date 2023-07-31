@@ -7,33 +7,13 @@ ColumnMapping = Union[Dict[str, int], ee.Dictionary]
 Lookup = ee.Dictionary
 
 
-class TrainingData:
+class TrainingPoints(ee.FeatureCollection):
     def __init__(self, args):
-        self.raw = self._instaniate_collection(args)
+        super().__init__(args, None)
         self.class_property: ColumnName = 'Wetland'
-        self._lookup = self._build_lookup(self.raw, self.class_property)
         # TODO add a validation check to ensure the class property is in the feature collection
 
-    @property
-    def lookup(self) -> Lookup:
-        if self.class_property != 'Wetland':
-            self._lookup = self._build_lookup(self.raw, self.class_property)
-        return self._lookup
-
-    @staticmethod
-    def _instaniate_collection(args: ee.FeatureCollection):
-        """ helps construct the collection from VALID arguments """
-        if isinstance(args, ee.FeatureCollection):
-            return args
-        return ee.FeatureCollection(args)
-
-    @staticmethod
-    def _build_lookup(collection: ee.FeatureCollection, column: ColumnName) -> Lookup:
-        keys = collection.aggregate_array(column).distinct().sort()
-        values = ee.List.sequence(1, keys.size())
-        return ee.Dictionary.fromLists(keys, values)
-
-    def remap_cls_prop(self, mapping: ColumnMapping = None):
+    def remap(self, mapping: ColumnMapping = None):
         if mapping is not None and isinstance(mapping, dict):
             # if any key value is not a string then convert to string
             for key in mapping.keys():
@@ -41,12 +21,14 @@ class TrainingData:
                     mapping[str(key)] = mapping.pop(key)
             mapping = ee.Dictionary(mapping)
         else:
-            mapping = self.lookup
+            lookupin = self.aggregate_array(self.class_property).distinct().sort()
+            lookupout = ee.List.sequence(1, lookupin.size())
+            mapping = ee.Dictionary.fromLists(lookupin, lookupout)
 
-        lookup_in = ee.List(mapping.keys())
-        lookup_out = ee.List(mapping.values()).map(lambda x: ee.Number(x).int())
-        self.raw = self.raw.remap(lookup_in, lookup_out, self.class_property)
-        return self
+        def _remap(feature: ee.Feature) -> ee.Feature:
+            return feature.set({self.class_property: mapping.get(feature.get(self.class_property))})
+        
+        return self.map(_remap)
 
     def add_x_col(self, x: ColumnName = None):
         """ adds the x coordinate column to the feature collection
