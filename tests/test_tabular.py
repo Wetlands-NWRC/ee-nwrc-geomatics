@@ -5,47 +5,39 @@ import ee
 ee.Initialize()
 
 
-from src.rftbx.tabular import TrainingData
+from src.rftbx.tabular import TrainingPoints
 
 
-class MyTestCase(unittest.TestCase):
 
+class TestTrainingPoints(unittest.TestCase):
     def setUp(self) -> None:
-        self.training_data = TrainingData("projects/fpca-336015/assets/NovaScotia/_527_POINTS")
-        self.training_data.class_property = 'land_cover'
-    def test_lookup(self):
-        lookup = self.training_data.lookup
+        features = [
+            ee.Feature(ee.Geometry.Point([1, 2]), {'Wetland': 'class_1'}),
+            ee.Feature(ee.Geometry.Point([2, 3]), {'Wetland': 'class_2'}),
+            ee.Feature(ee.Geometry.Point([3, 4]), {'Wetland': 'class_3'}),
+            ee.Feature(ee.Geometry.Point([4, 5]), {'Wetland': 'class_4'}),        
+        ]
+        self.training_points = TrainingPoints(features)
+        return None
+    
+    def test_remap_override_from_client_dict(self):
 
         try:
-            info = lookup.getInfo()
-        except Exception as e:
+            fc = self.training_points.remap({'class_1': 1, 'class_2': 2, 'class_3': 3, 'class_4': 4})
+            pprint(fc.getInfo())
+        except ee.EEException as e:
             self.fail(e)
-
-        pprint(info)
-
-    def test_remap(self):
-        remapped = self.training_data.remap_(self.training_data.lookup)
+    
+    def test_remap_override_from_ee_dict(self):
         try:
-            remapped.getInfo()
-        except Exception as e:
+            fc = self.training_points.remap(ee.Dictionary({'class_1': 1, 'class_2': 2, 'class_3': 3, 'class_4': 4}))
+            pprint(fc.getInfo())
+        except ee.EEException as e:
             self.fail(e)
-        pprint(remapped.first().getInfo())
 
-    def test_add_x(self):
-        with_x = self.training_data.add_x_col()
+    def test_remap_override_from_internal_mapping(self):
         try:
-            with_x.getInfo()
-        except Exception as e:
+            fc = self.training_points.remap()
+            pprint(fc.getInfo())
+        except ee.EEException as e:
             self.fail(e)
-        pprint(with_x.first().getInfo())
-
-    def test_add_y(self):
-        with_y = self.training_data.add_y_col()
-        try:
-            with_y.getInfo()
-        except Exception as e:
-            self.fail(e)
-        pprint(with_y.first().getInfo())
-
-if __name__ == '__main__':
-    unittest.main()
