@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Any, Callable
 
 import ee
 
@@ -21,26 +21,29 @@ class CloudMasks:
         return image.updateMask(mask)
 
 
-class S2Cloudless:
-    """A class the contains methods for cloud masking Sentinel-2 images."""
-    def __init__(self, cld_col: ee.ImageCollection):
-        self.cld_col = cld_col
+class S2CloudlessAlgorithm:
+    """Constructs the S2 Cloudless Masking algorithm."""
+    def __init__(self, cloud_prb_thresh: int = 50, nir_drk_thresh: float = 0.15, cld_prj_dist: float = 1.0, sr_band_scale: float = 1e4, buffer: int = 50):
+        self.cloud_prb_thresh = cloud_prb_thresh
+        self.nir_drk_thresh = nir_drk_thresh
+        self.cld_prj_dist = cld_prj_dist
+        self.sr_band_scale = sr_band_scale
+        self.buffer = buffer
 
-    def add_cloud_bands(self, cloud_prb_thresh: int = 50):
+    def __call__(self, image: ee.Image) -> Any:
+        img_cloud = self.add_cloud_bands()(image)
+        img_cloud_shadow = self.add_shadow_bands()(img_cloud)
+        img_cloud_shadow_mask = self.add_cld_shadow_mask()(img_cloud_shadow)
+        return self.apply_shadow_mask()(img_cloud_shadow_mask)
+
+    def add_cloud_bands(self) -> Callable:
         def wrapper(img: S2Image):
             cld_prb = ee.Image(img.get("s2cloudless")).select("probability")
-            is_cloud = cld_prb.gt(cloud_prb_thresh).rename("clouds")
+            is_cloud = cld_prb.gt(self.cloud_prb_thresh).rename("clouds")
             return img.addBands([cld_prb, is_cloud])
+        return wrapper
 
-        self.cld_col = self.cld_col.map(wrapper)
-        return self
-
-    def add_shadow_bands(
-        self,
-        nir_drk_thresh: float = 0.15,
-        cld_prj_dist: float = 1.0,
-        sr_band_scale: float = 1e4,
-    ):
+    def add_shadow_bands(self) -> Callable:
         def wrapper(img: S2Image):
             # Identify water pixels from the SCL band.
             not_water = img.select("SCL").neq(6)
@@ -48,7 +51,7 @@ class S2Cloudless:
             # Identify dark NIR pixels that are not water (potential cloud shadow pixels).
             dark_pixels = (
                 img.select("B8")
-                .lt(nir_drk_thresh * sr_band_scale)
+                .lt(self.nir_drk_thresh * self.sr_band_scale)
                 .multiply(not_water)
                 .rename("dark_pixels")
             )
@@ -61,7 +64,7 @@ class S2Cloudless:
             # Project shadows from clouds for the distance specified by the CLD_PRJ_DIST input.
             cld_proj = (
                 img.select("clouds")
-                .directionalDistanceTransform(shadow_azimuth, cld_prj_dist * 10)
+                .directionalDistanceTransform(shadow_azimuth, self.cld_prj_dist * 10)
                 .reproject(**{"crs": img.select(0).projection(), "scale": 100})
                 .select("distance")
                 .mask()
@@ -74,10 +77,9 @@ class S2Cloudless:
             # Add dark pixels, cloud projection, and identified shadows as image bands.
             return img.addBands(ee.Image([dark_pixels, cld_proj, shadows]))
 
-        self.cld_col = self.cld_col.map(wrapper)
-        return self
+        return wrapper
 
-    def add_cld_shadow_mask(self, buffer: int = 50) -> Callable:
+    def add_cld_shadow_mask(self) -> Callable:
         def wrapper(img: S2Image):
             # Combine cloud and shadow mask, set cloud and shadow as value 1, else 0.
             is_cld_shdw = img.select("clouds").add(img.select("shadows")).gt(0)
@@ -86,7 +88,7 @@ class S2Cloudless:
             # 20 m scale is for speed, and assumes clouds don't require 10 m precision.
             is_cld_shdw = (
                 is_cld_shdw.focalMin(2)
-                .focalMax(buffer * 2 / 20)
+                .focalMax(self.buffer * 2 / 20)
                 .reproject(**{"crs": img.select([0]).projection(), "scale": 20})
                 .rename("cloudmask")
             )
@@ -94,10 +96,9 @@ class S2Cloudless:
             # Add the final cloud-shadow mask to the image.
             return img.addBands(is_cld_shdw)
 
-        self.cld_col = self.cld_col.map(wrapper)
-        return self
+        return wrapper
 
-    def apply_shadow_mask(self):
+    def apply_shadow_mask(self) -> Callable:
         def wrapper(img: S2Image):
             # Subset the cloudmask band and invert it so clouds/shadow are 0, else 1.
             not_cld_shdw = img.select("cloudmask").Not()
@@ -105,5 +106,4 @@ class S2Cloudless:
             # Subset reflectance bands and update their masks, return the result.
             return img.select("B.*").updateMask(not_cld_shdw)
 
-        self.cld_col = self.cld_col.map(wrapper)
-        return self
+        return wrapper
