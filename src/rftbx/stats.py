@@ -16,6 +16,7 @@ def make_confusion_matrix(validation, on: ColumnName = None, name: Classificatio
 class Assessment:
     def __init__(self, confusion_matrix: ConfusionMatrix) -> None:
         self._matrix = confusion_matrix
+        self._table: ee.FeatureCollection = None
         self.cfm: ee.Feature = None
         self.accuracy: ee.Feature = None
         self.producers: ee.Feature = None
@@ -28,6 +29,12 @@ class Assessment:
     @property
     def confusion_matrix(self):
         return self._matrix
+    
+    @property
+    def assessment(self):
+        if self._table is None:
+            raise ValueError("Assessment has not been built")
+        return self._table
 
     def add_matrix(self):
         """ adds a formatted confusion matrix to the assessment """
@@ -62,5 +69,6 @@ class Assessment:
     def build(self) -> ee.FeatureCollection:
         """ build the assessment, needs to run inorder to export the assessment """
         # cast and format the matrix
-        return ee.FeatureCollection([v for v in self.__dict__.values() if isinstance(v, ee.Feature)])
+        self._table = ee.FeatureCollection([v for v in self.__dict__.values() if isinstance(v, ee.Feature)])
+        return self
         
