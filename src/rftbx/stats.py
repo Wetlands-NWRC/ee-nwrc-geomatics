@@ -5,12 +5,17 @@ Labels = List[str]
 ConfusionMatrix = Any
 ColumnName = str
 ClassificationName = str
+Order = List[int]
 
 
-def make_confusion_matrix(validation, on: ColumnName = None, name: ClassificationName = None) -> ConfusionMatrix:
+def make_confusion_matrix(validation, on: ColumnName = None, name: ClassificationName = None, order: Order = None) -> ConfusionMatrix:
     name = 'classification' if name is None else name
     on = 'Wetland' if on is None else on
-    return validation.errorMatrix(on, name)
+    if order is None:
+        # create a non zero array of numbers
+        order = validation.aggregate_array(on).distinct().sort()
+
+    return validation.errorMatrix(on, name, order)
 
 
 class Assessment:
@@ -21,10 +26,7 @@ class Assessment:
         self.accuracy: ee.Feature = None
         self.producers: ee.Feature = None
         self.consumers: ee.Feature = None
-
-    @staticmethod
-    def _build_confusion_matrix(validation: ee.FeatureCollection, classProperty: str, predictedProperty: str) -> ee.Feature:
-        return validation.errorMatrix(classProperty, predictedProperty)
+        self.labels: ee.Feature = None
 
     @property
     def confusion_matrix(self):
@@ -39,7 +41,7 @@ class Assessment:
     def add_matrix(self):
         """ adds a formatted confusion matrix to the assessment """
         self.cfm = ee.Feature(
-            None, {"cfm", self._assessment.matrix.array().slice(0, 1).slice(1, 1)}
+            None, {"cfm", self._matrix.array().slice(0, 1).slice(1, 1)}
         )
         return self
     
@@ -60,6 +62,7 @@ class Assessment:
         self._producers = ee.Feature(
             None, {"consumers": self._matrix.consumersAccuracy().toList().flatten().slice(1)}
         )
+        return self
     
     def add_labels(self, labels: Labels):
         """ add the labels to the assessment """
