@@ -70,18 +70,10 @@ class SAVI(BandMath):
         return calc
 
 
-def addRatio(self, calc: Ratio):
-    return self.map(calc)
-
-
-def addSAVI(self, calc: SAVI):
-    return self.map(calc)
-
-
-def addNDVI(self, calc: NDVI):
-    return self.map(calc)
-
-
+def addCalculator(self, calculator: BandMath):
+    if not issubclass(calculator, BandMath):
+        raise TypeError("calculator must be a subclass of BandMath")
+    return self.map(calculator)
 
 
 class OpticalBandMath:
