@@ -1,7 +1,7 @@
 import ee
 from .rmath import *
+from .denoise import denoise
 
 
-# ee.ImageCollection.addRatio = addRatio
-# ee.ImageCollection.addNdvi = addNDVI
-# ee.ImageCollection.addSavi = addSAVI
+ee.ImageCollection.addCalculator = addCalculator
+ee.ImageCollection.denoise = denoise
