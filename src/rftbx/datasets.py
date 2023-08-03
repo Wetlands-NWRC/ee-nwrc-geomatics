@@ -1,20 +1,11 @@
 import ee
 
-from .rmath import *
-from .despekle import DespeckleAlgorithm
-
 
 class Sentinel1(ee.ImageCollection):
 
     def __init__(self, args=None):
         args = args if args is not None else "COPERNICUS/S1_GRD"
         super().__init__(args)
-
-    def addRatio(self, ratio: Ratio):
-        return self.map(ratio)
-
-    def denoise(self, filter: DespeckleAlgorithm):
-        return self.map(filter)
 
 
 class Sentinel2(ee.ImageCollection):
@@ -53,12 +44,6 @@ class Sentinel2(ee.ImageCollection):
     def __init__(self, agrs=None):
         args = agrs if agrs is not None else "COPERNICUS/S2_SR"
         super().__init__(args)
-
-    def addNDVI(self, ndvi: NDVI):
-        return self.map(ndvi)
-
-    def addSAVI(self, savi: SAVI):
-        return self.map(savi)
 
 
 class ALOS2(ee.ImageCollection):
