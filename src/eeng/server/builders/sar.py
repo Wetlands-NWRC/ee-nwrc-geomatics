@@ -1,7 +1,7 @@
 from typing import Tuple, Callable, Union, List
 import ee
 
-from ..rmath import SARBandMath
+from ..calc import SARBandMath
 
 BandName = str
 DateConstraint = Tuple[str, str]

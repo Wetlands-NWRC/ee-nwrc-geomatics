@@ -2,7 +2,7 @@ from typing import List, Dict, Union
 import ee
 
 from .collections import HarmonicsCollection
-from .rmath import OpticalBandMath
+from .calc import OpticalBandMath
 
 TrainingData = ee.FeatureCollection
 ColumnName = str

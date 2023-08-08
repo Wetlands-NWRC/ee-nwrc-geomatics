@@ -1,7 +1,7 @@
 from typing import Callable, Tuple, Union, List
 import ee
 
-from ..rmath import OpticalBandMath
+from ..calc import OpticalBandMath
 from ..collections import Sentinel2
 from ..cmasking import CloudMasks
 

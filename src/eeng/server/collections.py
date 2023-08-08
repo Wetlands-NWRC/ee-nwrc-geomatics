@@ -1,6 +1,6 @@
 import ee
 from math import pi
-from .rmath import NDVI
+from .calc import NDVI
 
 
 # funtions that are to bound to the image collection

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from .collections import *
 
-from .rmath import *
+from .calc import *
 
 
 class ImageCollectionBuilder(ABC):

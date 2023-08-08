@@ -1,7 +1,7 @@
 from math import pi
 import ee
 
-from ..rmath import NDVI
+from ..calc import NDVI
 
 
 class HarmonicsCollection(ee.ImageCollection):

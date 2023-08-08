@@ -1,5 +1,5 @@
 import ee
-from .rmath import *
+from .calc import *
 from .denoise import denoise
 
 
