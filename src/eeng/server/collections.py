@@ -5,33 +5,33 @@ from math import pi
 from .calc import NDVI
 
 
-# funtions that are to bound to the image collection
-def denoise(self, filter: callable):
-    return self.map(filter)
+class TimeSeries:
+    def __init__(self, args):
+        super().__init__(args)
+        self.col = None
+        self._independent = []
+        self._dependent = None
 
+    def addDependent(self, calc):
+        self._dependent = calc.name
+        self.col = self.col.map(calc)
+        return self
 
-def addCalculator(self, calc: callable):
-    return self.map(calc)
+    def addConstant(self):
+        def _addConstant(image: ee.Image):
+            return image.addBands(ee.Image.constant(1))
+        self.col = self.col.map(_addConstant)
+        return self
 
-
-def addDependent(self, calc):
-        self.dep = calc.name
-        return self.map(calc)
-
-
-def addConstant(self):
-    def _addConstant(image: ee.Image):
-        return image.addBands(ee.Image.constant(1))
-    return self.map(_addConstant)
-
-
-def addTime(self, omega: float = 1.0):
-    def _addTime(image: ee.Image):
-        date = ee.Date(image.get("system:time_start"))
-        years = date.difference(ee.Date("1970-01-01"), "year")
-        time_radians = ee.Image(years.multiply(2 * pi * omega).rename("t"))
-        return image.addBands(time_radians.float())
-    return self.map(_addTime)
+    def addTime(self, omega: float = 1.0):
+        self._independent.append("t")
+        def _addTime(image: ee.Image):
+            date = ee.Date(image.get("system:time_start"))
+            years = date.difference(ee.Date("1970-01-01"), "year")
+            time_radians = ee.Image(years.multiply(2 * pi * omega).rename("t"))
+            return image.addBands(time_radians.float())
+        self.col = self.col.map(_addTime)
+        return self
 
 
 class ImageCollectionCreator:
@@ -44,6 +44,22 @@ class ImageCollectionCreator:
     @classmethod
     def s1_collection_factory(cls):
         return cls("COPERNICUS/S1_GRD")
+
+    @classmethod
+    def s2_sr_collection_factory(cls):
+        return cls("COPERNICUS/S2_SR")
+
+    @classmethod
+    def s2_cloud_probability_collection_factory(cls):
+        return cls("COPERNICUS/S2_CLOUD_PROBABILITY")
+    
+    @classmethod
+    def s2_toa_collection_factory(cls):
+        return cls("COPERNICUS/S2")
+    
+    @classmethod
+    def alos_collection_factory(cls):
+        return cls("JAXA/ALOS/PALSAR/YEARLY/SAR")
 
 
 class Sentinel1Creator(ImageCollectionCreator):
@@ -60,7 +76,7 @@ class Sentinel1Creator(ImageCollectionCreator):
 
 class Sentinel2(ImageCollectionCreator):
     def top_of_atmosphere(self):
-        ...
+        return NotImplemented
     
     def surface_refelctance(self):
         ...
@@ -76,9 +92,15 @@ class DataCubeCreator(ImageCollectionCreator):
     def create_data_cube_collection(self, aoi):
         pass
 
+
 class ALOSCreator:
     def create_alos_collection(self):
         pass
+
+
+class TimeSeriesCreator(ImageCollectionCreator):
+    def get_time_series(self, start, end, aoi, omega: float = 1.0):
+        return TimeSeries(self.create_collection(start, end, aoi)).addTime(omega).addConstant()
 
 
 class Sentinel2(ee.ImageCollection):
