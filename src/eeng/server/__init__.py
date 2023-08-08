@@ -1,6 +1,6 @@
 import ee
 from .calc import *
-from .denoise import denoise
+from .collections import denoise, addCalculator
 
 
 ee.ImageCollection.addCalculator = addCalculator
