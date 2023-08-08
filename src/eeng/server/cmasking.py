@@ -5,10 +5,20 @@ import ee
 S2Image = ee.Image
 
 
-class CloudMasks:
-    def s2_cloud_mask(image: S2Image):
-        qa = image.select("QA60")
+class MaskingAlgorithm:
+    pass
 
+
+class S2CloudMasks:
+
+    def __init__(self) -> None:
+        self._qa_band = 'QA60'
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return image.updateMask(self.apply)
+
+    def apply(self, image: ee.Image) -> ee.Image:
+        qa = image.select(self._qa_band)
         cloud_bit_mask = 1 << 10
         cirrus_bit_mask = 1 << 11
 
@@ -18,8 +28,7 @@ class CloudMasks:
             .And(qa.bitwiseAnd(cirrus_bit_mask).eq(0))
         )
 
-        return image.updateMask(mask)
-
+        return mask
 
 class S2CloudlessAlgorithm:
     """Constructs the S2 Cloudless Masking algorithm."""
