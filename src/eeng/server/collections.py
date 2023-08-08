@@ -12,6 +12,26 @@ def addCalculator(self, calc: callable):
     return self.map(calc)
 
 
+def addDependent(self, calc):
+        self.dep = calc.name
+        return self.map(calc)
+
+
+def addConstant(self):
+    def _addConstant(image: ee.Image):
+        return image.addBands(ee.Image.constant(1))
+    return self.map(_addConstant)
+
+
+def addTime(self, omega: float = 1.0):
+    def _addTime(image: ee.Image):
+        date = ee.Date(image.get("system:time_start"))
+        years = date.difference(ee.Date("1970-01-01"), "year")
+        time_radians = ee.Image(years.multiply(2 * pi * omega).rename("t"))
+        return image.addBands(time_radians.float())
+    return self.map(_addTime)
+
+
 class ImageCollectionCreator:
     def __init__(self, collection_id: str) -> None:
         self.collection_id = collection_id
@@ -29,6 +49,20 @@ class Sentinel1(ImageCollectionCreator):
         ...
     
     def get_S1_dh_collection(self, start, end, aoi) -> ee.ImageCollection:
+        ...
+
+
+class Sentinel2(ImageCollectionCreator):
+    def top_of_atmosphere(self):
+        ...
+    
+    def surface_refelctance(self):
+        ...
+
+    def propability(self):
+        ...
+    
+    def s2Cloudless(self):
         ...
     
 
