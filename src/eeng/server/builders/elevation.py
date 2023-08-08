@@ -3,7 +3,7 @@ from typing import Callable
 import ee
 import tagee
 
-from ..datasets import NASADEM
+from ..collections import NASADEM
 
 
 @dataclass

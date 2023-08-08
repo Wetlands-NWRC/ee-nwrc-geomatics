@@ -2,7 +2,7 @@ from typing import Callable, Tuple, Union, List
 import ee
 
 from ..rmath import OpticalBandMath
-from ..datasets import Sentinel2
+from ..collections import Sentinel2
 from ..cmasking import CloudMasks
 
 OpticalDataset = ee.ImageCollection

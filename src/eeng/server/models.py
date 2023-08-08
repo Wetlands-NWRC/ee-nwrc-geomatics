@@ -1,7 +1,7 @@
 from typing import List, Dict, Union
 import ee
 
-from .datasets import HarmonicsCollection
+from .collections import HarmonicsCollection
 from .rmath import OpticalBandMath
 
 TrainingData = ee.FeatureCollection

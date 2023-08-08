@@ -1,8 +1,8 @@
 from unittest import TestCase
 import ee
 
-from rftbx.datasets import Sentinel2
-from rftbx.cmasking import S2CloudlessAlgorithm
+from eeng.datasets import Sentinel2
+from eeng.cmasking import S2CloudlessAlgorithm
 
 ee.Initialize()
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from .datasets import *
+from .collections import *
 
 from .rmath import *
 

@@ -5,7 +5,7 @@ import ee
 ee.Initialize()
 
 
-from src.rftbx.tabular import TrainingPoints
+from src.eeng.tabular import TrainingPoints
 
 
 

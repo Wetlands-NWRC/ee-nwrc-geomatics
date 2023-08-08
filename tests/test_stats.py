@@ -2,7 +2,7 @@ import unittest
 from pprint import pprint
 import ee
 
-from rftbx.stats import Assessment
+from eeng.stats import Assessment
 
 ee.Initialize()
 

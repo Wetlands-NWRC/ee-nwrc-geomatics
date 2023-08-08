@@ -3,13 +3,36 @@ from math import pi
 from .rmath import NDVI
 
 
-class Sentinel1(ee.ImageCollection):
-
-    def __init__(self, args=None):
-        args = args if args is not None else "COPERNICUS/S1_GRD"
-        super().__init__(args)
+# funtions that are to bound to the image collection
+def denoise(self, filter: callable):
+    return self.map(filter)
 
 
+def addCalculator(self, calc: callable):
+    return self.map(calc)
+
+
+class ImageCollectionCreator:
+    def __init__(self, collection_id: str) -> None:
+        self.collection_id = collection_id
+
+    def create_collection(self, start, end, aoi) -> ee.ImageCollection:
+        return ee.ImageCollection(self.collection_id).filterDate(start, end).filterBounds(aoi)
+    
+    @classmethod
+    def s1_collection_factory(cls):
+        return cls("COPERNICUS/S1_GRD")
+
+
+class Sentinel1(ImageCollectionCreator):
+    def get_s1_dv_collection(self, start, end, aoi) -> ee.ImageCollection:
+        ...
+    
+    def get_S1_dh_collection(self, start, end, aoi) -> ee.ImageCollection:
+        ...
+    
+
+   
 class Sentinel2(ee.ImageCollection):
 
     @classmethod
