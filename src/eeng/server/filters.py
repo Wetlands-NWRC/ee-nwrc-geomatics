@@ -5,7 +5,7 @@ import ee
 class SpatialFilters(ABC):
 
     def __call__(self, image: ee.Image) -> ee.Image:
-        return image.convolve(self.algo())
+        return image.convolve(self.algo()).set('spatialFilter', 'Added')
 
     @abstractmethod
     def algo(self):
