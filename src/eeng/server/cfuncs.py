@@ -19,11 +19,13 @@ def sentinel2TOA(cls, start, end, aoi, cloud_px_percent: int = 10):
     instance = cls("COPERNICUS/S2").filterBounds(aoi).filterDate(start, end).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_px_percent))
     return instance
 
+
 @classmethod
 def sentinel2CloudProbability(cls, start, end, aoi):
     """ """
     instance = cls("COPERNICUS/S2_CLOUD_PROBABILITY").filterBounds(aoi).filterDate(start, end)
     return instance
+
 
 @classmethod
 def sentinel2Cloudless(cls, s2_col, s2_prob):
