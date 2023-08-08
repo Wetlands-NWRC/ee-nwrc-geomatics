@@ -34,4 +34,15 @@ def addTime(self, omega: float = 1.0):
 
 
 def addHarmonics(self, cycles: int = 3):
-    pass
+    sin = [f"cos_{i}" for i in range(1, cycles + 1)]
+    cos = [f"sin_{i}" for i in range(1, cycles + 1)]
+
+    def _addHarmonics(image: ee.Image):
+        frequencies = ee.Image.constant(cycles)
+        time = ee.Image(image).select("t")
+        cosines = time.multiply(frequencies).cos().rename(cos)
+        sines = time.multiply(frequencies).sin().rename(sin)
+        return image.addBands(cosines).addBands(sines)
+
+    return self.map(_addHarmonics)
+
