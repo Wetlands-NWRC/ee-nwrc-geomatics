@@ -5,10 +5,6 @@ import ee
 
 BandName = str
 
-# TODO - Update Band Math to be Object Oriented
-# TODO - Create an Abstract Base Class for Band Math
-
-
 class Calculator(ABC):
 
     def __call__(self, image: ee.Image) -> ee.Image:
