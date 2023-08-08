@@ -12,3 +12,4 @@ ee.ImageCollection.addHarmonics = addHarmonics
 ee.FeatureCollection.addXCordinate = add_x_coordinate
 ee.FeatureCollection.addYCordinate = add_y_coordinate
 ee.FeatureCollection.generateSamples = generate_samples
+ee.FeatureCollection.getLookup = lookup

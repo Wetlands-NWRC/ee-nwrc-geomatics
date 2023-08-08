@@ -14,6 +14,10 @@ def addCalculator(self, calc: callable):
     return self.map(calc)
 
 
+def add_cloud_mask(self, cloud_mask: callable):
+    return self.map(cloud_mask)
+
+
 def addDependent(self, calc: callable):
     return self.map(calc)
 
@@ -83,8 +87,14 @@ def generate_samples(self, image: ee.Image, props: list[ColumnName] = None, scal
     return sample
 
 
-def lookup(self, column: ColumnName) -> ee.Dictionary:
-    pass
+def lookup(self, column: ColumnName, sorted: bool = False) -> ee.Dictionary:
+    """ returns a dictionary of the unique values in the column and their associated value alphabetically sorted"""
+    if sorted:
+        keys = self.aggregate_array(column).distinct().sort()
+    else:
+        keys = self.aggregate_array(column).distinct()
+    values = ee.List.sequence(1, keys.size())
+    return ee.Dictionary.fromLists(keys, values)
 
 
 def remap_from_lookup(self, column: ColumnName, lookup: ee.Dictionary) -> ee.FeatureCollection:

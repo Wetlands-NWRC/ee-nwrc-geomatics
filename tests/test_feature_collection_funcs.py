@@ -35,3 +35,9 @@ class TestFeatureCollectionFuncs(unittest.TestCase):
             pprint(self.fc.generateSamples(img).first().getInfo())
         except ee.EEException as e:
             self.fail(e)
+    
+    def test_get_lookup(self):
+        try:
+            pprint(self.fc.getLookup('class', sorted=True).getInfo())
+        except ee.EEException as e:
+            self.fail(e)
