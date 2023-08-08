@@ -1,4 +1,6 @@
 import ee
+from math import pi
+from .rmath import NDVI
 
 
 class Sentinel1(ee.ImageCollection):
@@ -83,3 +85,41 @@ class Stack:
     def concat(self) -> ee.Image:
         """ Concatenate all images in the stack """
         return ee.Image.cat(*self._stack)
+
+
+class HarmonicsCollection(ee.ImageCollection):
+    def __init__(self, args, dependent = NDVI(), cycles: int = 3):
+        super().__init__(args)
+        self.indep = ['constant', 't']
+        self.dep = dependent
+        self.cycles = cycles
+
+    def addDependent(self, calc):
+        self.dep = calc.name
+        return self.map(calc)
+
+    def addConstant(self):
+        def _addConstant(image: ee.Image):
+            return image.addBands(ee.Image.constant(1))
+        return self.map(_addConstant)
+
+    def addTime(self, omega: float = 1.0):
+        def _addTime(image: ee.Image):
+            date = ee.Date(image.get("system:time_start"))
+            years = date.difference(ee.Date("1970-01-01"), "year")
+            time_radians = ee.Image(years.multiply(2 * pi * omega).rename("t"))
+            return image.addBands(time_radians.float())
+        return self.map(_addTime)
+
+    def addHarmonics(self):
+        sin = [f"cos_{i}" for i in range(1, self.cycles + 1)]
+        cos = [f"sin_{i}" for i in range(1, self.cycles + 1)]
+
+        def _addHarmonics(image: ee.Image):
+            frequencies = ee.Image.constant(self.cycles)
+            time = ee.Image(image).select("t")
+            cosines = time.multiply(frequencies).cos().rename(cos)
+            sines = time.multiply(frequencies).sin().rename(sin)
+            return image.addBands(cosines).addBands(sines)
+
+        return self.map(_addHarmonics)
