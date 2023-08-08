@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 import ee
 
 
+CollectionID = str
+
 @dataclass(frozen=True)
 class ImageCollectionIDs:
     """ Contains the image collection ids for the different data sources """
@@ -14,7 +16,7 @@ class ImageCollectionIDs:
 
 
 class ImageCollectionCreator:
-    def __init__(self, collection_id: str, start, end, aoi) -> None:
+    def __init__(self, collection_id: CollectionID, start, end, aoi) -> None:
         self.collection_id = collection_id
         self.start = start
         self.end = end
