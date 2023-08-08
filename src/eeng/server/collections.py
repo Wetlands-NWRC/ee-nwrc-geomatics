@@ -1,4 +1,6 @@
 import ee
+from ee import Geometry
+
 from math import pi
 from .calc import NDVI
 
@@ -52,8 +54,8 @@ class Sentinel1Creator(ImageCollectionCreator):
         ])
         return self.s1_collection_factory().create_collection(start=start, end=end, aoi=aoi).filter(polerizations).select('V.*')
     
-    def get_S1_dh(self, start, end, aoi) -> ee.ImageCollection:
-        ...
+    def get_s1_dh(self, start, end, aoi) -> ee.ImageCollection:
+        return NotImplemented
 
 
 class Sentinel2(ImageCollectionCreator):
@@ -66,7 +68,7 @@ class Sentinel2(ImageCollectionCreator):
     def propability(self):
         ...
     
-    def s2Cloudless(self):
+    def s2Cloudless(self, start, end, aoi, cloud_px_percent: int = 60):
         ...
 
 
