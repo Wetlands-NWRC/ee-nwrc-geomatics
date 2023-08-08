@@ -9,7 +9,7 @@ BandName = str
 # TODO - Create an Abstract Base Class for Band Math
 
 
-class BandMath(ABC):
+class Calculator(ABC):
 
     @abstractmethod
     def __call__(self, image: ee.Image) -> ee.Image:
