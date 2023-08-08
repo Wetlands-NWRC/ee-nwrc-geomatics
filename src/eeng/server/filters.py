@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 import ee
 
 
-class DenoiseAlgorithm(ABC):
+class SpatialFilters(ABC):
 
     def __call__(self, image: ee.Image) -> ee.Image:
         return image.convolve(self.algo())
@@ -12,7 +12,7 @@ class DenoiseAlgorithm(ABC):
         raise NotImplementedError
 
 
-class BoxCar(DenoiseAlgorithm):
+class BoxCar(SpatialFilters):
     def __init__(self, radius: int = 2, units: str = "pixels", normalize: bool = True, magnitude: float = 1.0):
         self.radius = radius
         self.units = units
@@ -23,7 +23,7 @@ class BoxCar(DenoiseAlgorithm):
         return ee.Kernel.square(self.radius, self.units, self.normalize, self.magnitude)
 
 
-class Gaussian(DenoiseAlgorithm):
+class Gaussian(SpatialFilters):
     def __init__(self, radius: float = 1.0, units: str = "pixels", normalize: bool = True, magnitude: float = 1.0):
         self.radius = radius
         self.units = units
@@ -34,7 +34,7 @@ class Gaussian(DenoiseAlgorithm):
         return ee.Kernel.gaussian(self.radius, self.units, self.normalize, self.magnitude)
 
 
-class PeronaMalik(DenoiseAlgorithm):
+class PeronaMalik(SpatialFilters):
     def __init__(self, K: float = 3.5, iterations: int = 10, method: int = 2):
         self.K = K
         self.iterations = iterations
@@ -101,7 +101,7 @@ class PeronaMalik(DenoiseAlgorithm):
         return img
 
 
-def denoise(self, algorithm: DenoiseAlgorithm):
-    if not issubclass(algorithm, DenoiseAlgorithm):
+def denoise(self, algorithm: SpatialFilters):
+    if not issubclass(algorithm, SpatialFilters):
         raise TypeError("algorithm must be a subclass of DenoiseAlgorithm")
     return self.map(algorithm)
