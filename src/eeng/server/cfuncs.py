@@ -46,3 +46,46 @@ def addHarmonics(self, cycles: int = 3):
 
     return self.map(_addHarmonics)
 
+
+# Feature Collection bounding methods
+ColumnName = str
+
+def addXCordinate(self, x: ColumnName = None):
+    """ adds the x coordinate column to the feature collection
+    Args:
+        x (ColumnName, optional): [description]. Defaults to x.
+
+    """
+    x = 'x' if x is None else x
+    def _add_x_col(feature: ee.Feature) -> ee.Feature:
+        geom = feature.geometry().centroid().coordinates()
+        return feature.set({x: geom.get(0)})
+    return self.map(_add_x_col)
+
+
+def addYCoodinate(self, y: ColumnName = None):
+    y = 'y' if y is None else y
+    def _add_y_col(feature: ee.Feature) -> ee.Feature:
+        geom = feature.geometry().centroid().coordinates()
+        return feature.set({y: geom.get(1)})
+    return self.map(_add_y_col)
+
+
+def generate_samples(self, image: ee.Image, props: list[ColumnName] = None, scale: int = 10, tileScale: int = 16) -> ee.FeatureCollection:
+    """ generates samples from the image. It is a geometry less feature collection"""
+    props = [] if props is None else props
+    sample = image.sampleRegions(
+        collection=self,
+        scale=10,
+        properties=props,
+        tileScale=16,
+    )
+    return sample
+
+
+def lookup(self, column: ColumnName) -> ee.Dictionary:
+    pass
+
+
+def remapFromLookup(self, column: ColumnName, lookup: ee.Dictionary) -> ee.FeatureCollection:
+    pass
