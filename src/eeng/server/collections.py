@@ -44,11 +44,15 @@ class ImageCollectionCreator:
         return cls("COPERNICUS/S1_GRD")
 
 
-class Sentinel1(ImageCollectionCreator):
-    def get_s1_dv_collection(self, start, end, aoi) -> ee.ImageCollection:
-        ...
+class Sentinel1Creator(ImageCollectionCreator):
+    def get_s1_dv(self, start, end, aoi) -> ee.ImageCollection:
+        polerizations = ee.Filter([
+            ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'),
+            ee.Filter.listContains('transmitterReceiverPolarisation', 'VH')
+        ])
+        return self.s1_collection_factory().create_collection(start=start, end=end, aoi=aoi).filter(polerizations).select('V.*')
     
-    def get_S1_dh_collection(self, start, end, aoi) -> ee.ImageCollection:
+    def get_S1_dh(self, start, end, aoi) -> ee.ImageCollection:
         ...
 
 
@@ -64,9 +68,17 @@ class Sentinel2(ImageCollectionCreator):
     
     def s2Cloudless(self):
         ...
-    
 
-   
+
+class DataCubeCreator(ImageCollectionCreator):
+    def create_data_cube_collection(self, aoi):
+        pass
+
+class ALOSCreator:
+    def create_alos_collection(self):
+        pass
+
+
 class Sentinel2(ee.ImageCollection):
 
     @classmethod
@@ -103,11 +115,6 @@ class Sentinel2(ee.ImageCollection):
     def __init__(self, agrs=None):
         args = agrs if agrs is not None else "COPERNICUS/S2_SR"
         super().__init__(args)
-
-
-class ALOS2(ee.ImageCollection):
-    def __init__(self):
-        super().__init__("JAXA/ALOS/PALSAR/YEARLY/SAR")
 
 
 class DataCube(ee.ImageCollection):
@@ -180,3 +187,11 @@ class HarmonicsCollection(ee.ImageCollection):
             return image.addBands(cosines).addBands(sines)
 
         return self.map(_addHarmonics)
+
+
+class TraningPointCreator:
+    def __init__(self, collection: ee.FeatureCollection) -> None:
+        self.collection = collection
+    
+    def create_training_data(self):
+        ...
