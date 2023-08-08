@@ -1,8 +1,6 @@
 from typing import List, Dict, Union
 import ee
 
-from .collections import HarmonicsCollection
-from .calc import OpticalBandMath
 
 TrainingData = ee.FeatureCollection
 ColumnName = str
