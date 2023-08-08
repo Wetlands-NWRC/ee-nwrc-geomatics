@@ -50,7 +50,7 @@ def addHarmonics(self, cycles: int = 3):
 # Feature Collection bounding methods
 ColumnName = str
 
-def addXCordinate(self, x: ColumnName = None):
+def addXCoordinate(self, x: ColumnName = None):
     """ adds the x coordinate column to the feature collection
     Args:
         x (ColumnName, optional): [description]. Defaults to x.
@@ -63,7 +63,7 @@ def addXCordinate(self, x: ColumnName = None):
     return self.map(_add_x_col)
 
 
-def addYCoodinate(self, y: ColumnName = None):
+def addYCoordinate(self, y: ColumnName = None):
     y = 'y' if y is None else y
     def _add_y_col(feature: ee.Feature) -> ee.Feature:
         geom = feature.geometry().centroid().coordinates()
