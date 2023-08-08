@@ -5,6 +5,53 @@
 from math import pi
 import ee
 
+# image collection factory functions
+@classmethod
+def sentinel2SR(cls, start, end, aoi, cloud_px_percent: int = 10):
+    """ """
+    instance = cls("COPERNICUS/S2_SR").filterBounds(aoi).filterDate(start, end).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_px_percent))
+    return instance
+
+
+@classmethod
+def sentinel2TOA(cls, start, end, aoi, cloud_px_percent: int = 10):
+    """ """
+    instance = cls("COPERNICUS/S2").filterBounds(aoi).filterDate(start, end).filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_px_percent))
+    return instance
+
+@classmethod
+def sentinel2CloudProbability(cls, start, end, aoi):
+    """ """
+    instance = cls("COPERNICUS/S2_CLOUD_PROBABILITY").filterBounds(aoi).filterDate(start, end)
+    return instance
+
+@classmethod
+def sentinel2Cloudless(cls, s2_col, s2_prob):
+    join = ee.Join.saveFirst('s2cloudless').apply(**{
+        'primary': s2_col,
+        'secondary': s2_prob,
+        'condition': ee.Filter.equals(**{
+            'leftField': 'system:index',
+            'rightField': 'system:index'
+        })
+    })
+
+    return cls(join)
+
+
+@classmethod
+def sentinel1DV(cls, start, end, aoi):
+    instance = cls("COPERNICUS/S1_GRD").filterBounds(aoi).filterDate(start, end).filter(ee.Filter([
+        ee.Filter.listContains('transmitterReceiverPolarisation', 'VV'),
+        ee.Filter.listContains('transmitterReceiverPolarisation', 'VH')
+    ]))
+    return instance.select("VV", "VH")
+
+@classmethod
+def alos(cls, start, end, aoi):
+    instance = cls("JAXA/ALOS/PALSAR/YEARLY/SAR").filterBounds(aoi).filterDate(start, end)
+    return instance.select("HH", "HV")
+
 # funtions that are to bound to the image collection
 def denoise(self, filter: callable):
     return self.map(filter)
