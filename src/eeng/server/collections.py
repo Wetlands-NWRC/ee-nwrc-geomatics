@@ -8,11 +8,11 @@ CollectionID = str
 @dataclass(frozen=True)
 class ImageCollectionIDs:
     """ Contains the image collection ids for the different data sources """
-    s1 = field(default="COPERNICUS/S1_GRD")
-    s2 = field(default="COPERNICUS/S2")
-    s2_sr = field(default="COPERNICUS/S2_SR")
-    s2_cloud_prob = field(default="COPERNICUS/S2_CLOUD_PROBABILITY")
-    alos = field(default="JAXA/ALOS/PALSAR/YEARLY/SAR")
+    s1: CollectionID = field(default="COPERNICUS/S1_GRD")
+    s2: CollectionID = field(default="COPERNICUS/S2")
+    s2_sr: CollectionID = field(default="COPERNICUS/S2_SR")
+    s2_cloud_prob: CollectionID = field(default="COPERNICUS/S2_CLOUD_PROBABILITY")
+    alos: CollectionID = field(default="JAXA/ALOS/PALSAR/YEARLY/SAR")
 
 
 class ImageCollectionCreator:
