@@ -30,22 +30,6 @@ class RandomForestModel:
     def model(self):
         return self._model
 
-    @property
-    def output_mode(self) -> ee.String:
-        return self.output_mode
-    
-    @output_mode.setter
-    def output_mode(self, mode: str):
-        mode = mode.lower()
-        if  mode == "multiprobability":
-            self.output_mode = "MULTIPROBABILITY"
-            self._model = self._model.setOutputMode(self.output_mode)
-        elif mode == "classification":
-            self.output_mode = "CLASSIFICATION"
-            self._model = self._model.setOutputMode(self.output_mode)
-        else:
-            raise ValueError("mode must be one of  'multiprobability', or 'classification'")
-
     def fit(
         self,
         features: TrainingData,
@@ -60,4 +44,3 @@ class RandomForestModel:
             return X.classify(self._model).uint8()
 
         return X.classify(self._model)
-
