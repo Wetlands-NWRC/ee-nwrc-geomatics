@@ -5,8 +5,8 @@ import ee
 
 BandName = str
 
-class Calculator(ABC):
 
+class Calculator(ABC):
     def __call__(self, image: ee.Image) -> ee.Image:
         return image.addBands(self.calc)
 
@@ -17,20 +17,24 @@ class Calculator(ABC):
 
 class Ratio(Calculator):
     def __init__(self):
-        self.numerator: BandName = 'VV'
-        self.demoninator: BandName = 'VH'
-        self.name: str = 'VV/VH'
+        self.numerator: BandName = "VV"
+        self.demoninator: BandName = "VH"
+        self.name: str = "VV/VH"
 
     def calc(self, image: ee.Image) -> ee.Image:
-        calc = image.select(self.numerator).divide(image.select(self.demoninator)).rename(self.name)
+        calc = (
+            image.select(self.numerator)
+            .divide(image.select(self.demoninator))
+            .rename(self.name)
+        )
         return calc
 
 
 class NDVI(Calculator):
-    def __init__(self):
-        self.nir: BandName = 'B8'
-        self.red: BandName = 'B4'
-        self.name: str = 'NDVI'
+    def __init__(self, nir: str = None, red: str = None, name: str = None) -> None:
+        self.nir: BandName = "B8" if nir is None else nir
+        self.red: BandName = "B4" if red is None else red
+        self.name: str = "NDVI" if name is None else name
 
     def calc(self, image: ee.Image) -> ee.Image:
         calc = image.normalizedDifference([self.nir, self.red]).rename(self.name)
@@ -38,10 +42,10 @@ class NDVI(Calculator):
 
 
 class SAVI(Calculator):
-    def __init__(self):
-        self.nir: BandName = 'B8'
-        self.red: BandName = 'B4'
-        self.name: str = 'SAVI'
+    def __init__(self, nir: str = None, red: str = None, name: str = None) -> None:
+        self.nir: BandName = "B8" if nir is None else nir
+        self.red: BandName = "B4" if red is None else red
+        self.name: str = "SAVI" if name is None else name
         self.L: float = 0.5
 
     def calc(self, image: ee.Image) -> ee.Image:
@@ -57,22 +61,30 @@ class SAVI(Calculator):
 
 
 class TasselCap(Calculator):
-    def __init__(self, blue: str = None, green: str = None, red: str = None, nir: str = None, swir1: str = None, swir2: str = None) -> None:
-        self.blue = 'B2' if blue is None else blue
-        self.green = 'B3' if green is None else green
-        self.red = 'B4' if red is None else red
-        self.nir = 'B8' if nir is None else nir
-        self.swir1 = 'B11' if swir1 is None else swir1
-        self.swir2 = 'B12' if swir2 is None else swir2
+    def __init__(
+        self,
+        blue: str = None,
+        green: str = None,
+        red: str = None,
+        nir: str = None,
+        swir1: str = None,
+        swir2: str = None,
+    ) -> None:
+        self.blue = "B2" if blue is None else blue
+        self.green = "B3" if green is None else green
+        self.red = "B4" if red is None else red
+        self.nir = "B8" if nir is None else nir
+        self.swir1 = "B11" if swir1 is None else swir1
+        self.swir2 = "B12" if swir2 is None else swir2
         super().__init__()
 
     def cacl(self, image: ee.Image) -> ee.Image:
         image = image.select(list(self.__dict__.values()))
         co_array = [
-                [0.3037, 0.2793, 0.4743, 0.5585, 0.5082, 0.1863],
-                [-0.2848, -0.2435, -0.5436, 0.7243, 0.0840, -0.1800],
-                [0.1509, 0.1973, 0.3279, 0.3406, -0.7112, -0.4572],
-            ]
+            [0.3037, 0.2793, 0.4743, 0.5585, 0.5082, 0.1863],
+            [-0.2848, -0.2435, -0.5436, 0.7243, 0.0840, -0.1800],
+            [0.1509, 0.1973, 0.3279, 0.3406, -0.7112, -0.4572],
+        ]
 
         co = ee.Array(co_array)
 
