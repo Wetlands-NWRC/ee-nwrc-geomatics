@@ -8,7 +8,7 @@ BandName = str
 
 class Calculator(ABC):
     def __call__(self, image: ee.Image) -> ee.Image:
-        return image.addBands(self.calc)
+        return image.addBands(self.calc(image))
 
     @abstractmethod
     def calc(self, image: ee.Image) -> ee.Image:
@@ -20,6 +20,9 @@ class Ratio(Calculator):
         self.numerator: BandName = "VV"
         self.demoninator: BandName = "VH"
         self.name: str = "VV/VH"
+
+    def __call__(self, image: ee.Image) -> ee.Image:
+        return super().__call__(image)
 
     def calc(self, image: ee.Image) -> ee.Image:
         calc = (
@@ -78,7 +81,7 @@ class TasselCap(Calculator):
         self.swir2 = "B12" if swir2 is None else swir2
         super().__init__()
 
-    def cacl(self, image: ee.Image) -> ee.Image:
+    def calc(self, image: ee.Image) -> ee.Image:
         image = image.select(list(self.__dict__.values()))
         co_array = [
             [0.3037, 0.2793, 0.4743, 0.5585, 0.5082, 0.1863],
