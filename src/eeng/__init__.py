@@ -16,7 +16,7 @@ ee.ImageCollection.alos = alos
 ee.ImageCollection.sentinel2Cloudless = sentinel2Cloudless
 
 # bound functions to the ee.FeatureCollection class
-ee.FeatureCollection.addXCordinate = add_x_coordinate
-ee.FeatureCollection.addYCordinate = add_y_coordinate
+ee.FeatureCollection.addXCoordinate = add_x_coordinate
+ee.FeatureCollection.addYCoordinate = add_y_coordinate
 ee.FeatureCollection.generateSamples = generate_samples
 ee.FeatureCollection.getLookup = lookup
