@@ -24,7 +24,6 @@ class RandomForestModel:
         self.seed = seed
 
         self._model = ee.Classifier.smileRandomForest(**self.__dict__)
-        self.output_mode = "classification"
 
     @property
     def model(self):
@@ -39,7 +38,9 @@ class RandomForestModel:
         self._model = self._model.train(features, classProperty, inputProperties)
         return self
 
-    def apply(self, X: Union[ee.Image, ee.FeatureCollection]) -> ee.Image:
+    def apply(
+        self, X: Union[ee.Image, ee.FeatureCollection]
+    ) -> Union[ee.Image, ee.FeatureCollection]:
         if isinstance(X, ee.Image):
             return X.classify(self._model).uint8()
 
