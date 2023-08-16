@@ -85,3 +85,126 @@ class Sentinel2Cloudless(ee.ImageCollection):
         if not isinstance(algo, S2CloudlessAlgorithm):
             raise TypeError("algo must be a S2CloudlessAlgorithm instance")
         return self.map(algo)
+
+
+# Creator classess
+class Sentinel2Creator:
+    def __init__(self):
+        self._sr = Sentinel2SR()
+        self._toa = Sentinel2TOA()
+        self._cp = Sentinel2CloudProbability()
+
+    @property
+    def sr(self):
+        return self._sr
+
+    @property
+    def toa(self):
+        return self._toa
+
+    @property
+    def cp(self):
+        return self._cp
+
+    def get_toa_col(
+        self,
+        start_date: str,
+        end_date: str,
+        geometry: ee.Geometry,
+        cloud_cover: float = 100.0,
+    ):
+        return (
+            self.toa.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_cover))
+        )
+
+    def get_sr_col(
+        self,
+        start_date: str,
+        end_date: str,
+        geometry: ee.Geometry,
+        cloud_cover: float = 100.0,
+    ):
+        return (
+            self.sr.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_cover))
+        )
+
+    def get_cp_col(self, start_date: str, end_date: str, geometry: ee.Geometry):
+        return self.cp.filterDate(start_date, end_date).filterBounds(geometry)
+
+
+class Sentinel1Creator:
+    def __init__(self) -> None:
+        self._s1 = Sentinel1()
+
+    @property
+    def s1(self):
+        return self._s1
+
+    def get_s1_col(self, start_date: str, end_date: str, geometry: ee.Geometry):
+        return self.s1.filterDate(start_date, end_date).filterBounds(geometry)
+
+    def get_dv_col(self, start_date, end_date, geometry):
+        filter = ee.Filter(
+            [
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VV"),
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VH"),
+                ee.Filter.eq("instrumentMode", "IW"),
+            ]
+        )
+
+        return (
+            self._s1.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(filter)
+        )
+
+    def get_dh_col(self, start_date, end_date, geometry):
+        filter = ee.Filter(
+            [
+                ee.Filter.listContains("transmitterReceiverPolarisation", "HH"),
+                ee.Filter.listContains("transmitterReceiverPolarisation", "HV"),
+                ee.Filter.eq("instrumentMode", "IW"),
+            ]
+        )
+
+        return (
+            self._s1.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(filter)
+        )
+
+    def get_asc_dv_col(self, start_date, end_date, geometry):
+        filter = ee.Filter(
+            [
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VV"),
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VH"),
+                ee.Filter.eq("instrumentMode", "IW"),
+                ee.Filter.eq("orbitProperties_pass", "ASCENDING"),
+            ]
+        )
+
+        return (
+            self._s1.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(filter)
+        )
+
+    def get_desc_dv_col(self, start_date, end_date, geometry):
+        filter = ee.Filter(
+            [
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VV"),
+                ee.Filter.listContains("transmitterReceiverPolarisation", "VH"),
+                ee.Filter.eq("instrumentMode", "IW"),
+                ee.Filter.eq("orbitProperties_pass", "DESCENDING"),
+            ]
+        )
+
+        return (
+            self._s1.filterDate(start_date, end_date)
+            .filterBounds(geometry)
+            .filter(filter)
+        )
