@@ -6,13 +6,13 @@ from .cmasking import S2CloudlessAlgorithm
 
 
 def denoise(self, filter: SpatialFilters):
-    if not issubclass(filter, SpatialFilters):
+    if not isinstance(filter, SpatialFilters):
         raise TypeError("filter must be a subclass of SpatialFilters")
     return self.map(filter)
 
 
 def addCalculator(self, calculator: Calculator):
-    if not issubclass(calculator, Calculator):
+    if not isinstance(calculator, Calculator):
         raise TypeError("calculator must be a subclass of Calculator")
     return self.map(calculator)
 
@@ -134,6 +134,9 @@ class Sentinel2Creator:
 
     def get_cp_col(self, start_date: str, end_date: str, geometry: ee.Geometry):
         return self.cp.filterDate(start_date, end_date).filterBounds(geometry)
+
+    def get_s2_cloudless_col(self, s2_sr, s2_cp) -> Sentinel2Cloudless:
+        return Sentinel2Cloudless((s2_sr, s2_cp))
 
 
 class Sentinel1Creator:
