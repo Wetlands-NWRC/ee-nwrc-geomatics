@@ -44,18 +44,7 @@ class Sentinel2CloudProbability(ee.ImageCollection):
 
 class Sentinel2Cloudless(ee.ImageCollection):
     def __init__(self, arg: tuple):
-        self._arg = arg
-        super().__init__(self.arg)
-
-    @property
-    def arg(self):
-        return self._arg
-
-    @arg.setter
-    def arg(self, arg):
-        if not isinstance(arg, tuple):
-            raise TypeError("arg must be a tuple")
-        self._arg = self._join(*arg)
+        super().__init__(self._join(*arg))
 
     @staticmethod
     def _join(*args):
