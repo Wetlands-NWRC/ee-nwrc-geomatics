@@ -1,21 +1,11 @@
-rf tool box
+## Notes
 
-math
-- raster calaculator, ndvi, savi, tassel ratio etc
-datasets
- - all default image collections
-spatial_filters
- - pm
- - guasian
- - boxcar
-table
- - class factories for loading feature collection from file and dataframe
- - remapping
- - general algorithms insert xy etc
-
-models
- - RandomForestModel:
- - train, predict 
-
-fourier_transform Done-needs testing
-terrain_analysis
+v1.1.0
+added Image Collection Creator Classes for
+ - Sentinel 1 
+ - Sentinel 2
+    - Cloud Probability
+    - Surface Reflectance
+    - Top Of Atmosphere
+ - Added denoise and addCalculator directly to Image Collection Class
+ 
