@@ -9,4 +9,5 @@ added Image Collection Creator Classes for
     - Top Of Atmosphere
  - Added denoise and addCalculator directly to Image Collection Class
  - Added a client tool to aid in the selection of swath images from sentinel 1
+ - Added Image Collection to feature collection tools
  
