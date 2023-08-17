@@ -5,44 +5,94 @@ from .calc import Calculator
 from .cmasking import S2CloudlessAlgorithm
 
 
-def denoise(self, filter: SpatialFilters):
-    if not isinstance(filter, SpatialFilters):
-        raise TypeError("filter must be a subclass of SpatialFilters")
-    return self.map(filter)
+class __ImageCollection(ee.ImageCollection):
+    """Not Ment to be used, just extends the ee.Image Collection class with out
+    having to bound them to the class at run time"""
+
+    def __init__(self, args):
+        super().__init__(args)
+
+    def denoise(self, filter: SpatialFilters):
+        if not isinstance(filter, SpatialFilters):
+            raise TypeError("filter must be a subclass of SpatialFilters")
+        return self.map(filter)
+
+    def addCalculator(self, calculator: Calculator):
+        if not isinstance(calculator, Calculator):
+            raise TypeError("calculator must be a subclass of Calculator")
+        return self.map(calculator)
+
+    def addFDate(self, fmt: str = None):
+        """adds the date of the image to the image formatted to the speification
+        defaults to YYYY-MM-dd
+        """
+        fmt = "YYYY-MM-dd" if fmt is None else fmt
+
+        def add_f_date(image: ee.Iamge):
+            return image.set("date", image.date().format(fmt))
+
+        return self.map(add_f_date)
+
+    def addPrefix(self):
+        """copies the system:id flag to image"""
+
+        def add_prefix(image: ee.Image):
+            return image.set("system_id", image.get("system:id"))
+
+        return self.map(add_prefix)
+
+    def toFeatureCollection(self) -> ee.FeatureCollection:
+        """Converts the Image Collection to a Feature Collection
+        note: it copies all non system properties
+        """
+
+        def to_feature(image: ee.ComputedObject) -> ee.Feature:
+            img = ee.Image(image)
+            return ee.Feature(img.geometry(), img.toDictionary())
+
+        as_list = self.tolist(self.size()).map(to_feature)
+        return ee.FeatureCollection(as_list)
 
 
-def addCalculator(self, calculator: Calculator):
-    if not isinstance(calculator, Calculator):
-        raise TypeError("calculator must be a subclass of Calculator")
-    return self.map(calculator)
-
-
-# bound functions to the ee.ImageCollection class
-ee.ImageCollection.denoise = denoise
-ee.ImageCollection.addCalculator = addCalculator
-
-
-class Sentinel1(ee.ImageCollection):
+class Sentinel1(__ImageCollection):
     def __init__(self):
         super().__init__("COPERNICUS/S1_GRD")
 
+    def addGroupId(self):
+        """adds a property that is the Relative Orbit combinded witht the Y coordinate of the centroid of the image footprint"""
 
-class Sentinel2SR(ee.ImageCollection):
+        def add_group_id(image: ee.Image):
+            y_cent = ee.Number(image.geometry().centroid().coordinates().get(1)).format(
+                "%.2f"
+            )
+
+            return image.set(
+                "group_id",
+                ee.Number(image.get("relativeOrbitNumber_start"))
+                .format("%d")
+                .cat("_")
+                .cat(y_cent),
+            )
+
+        return self.map(add_group_id)
+
+
+class Sentinel2SR(__ImageCollection):
     def __init__(self):
         super().__init__("COPERNICUS/S2_SR")
 
 
-class Sentinel2TOA(ee.ImageCollection):
+class Sentinel2TOA(__ImageCollection):
     def __init__(self):
         super().__init__("COPERNICUS/S2")
 
 
-class Sentinel2CloudProbability(ee.ImageCollection):
+class Sentinel2CloudProbability(__ImageCollection):
     def __init__(self):
         super().__init__("COPERNICUS/S2_CLOUD_PROBABILITY")
 
 
-class Sentinel2Cloudless(ee.ImageCollection):
+class Sentinel2Cloudless(__ImageCollection):
     def __init__(self, arg: tuple):
         super().__init__(self._join(*arg))
 
