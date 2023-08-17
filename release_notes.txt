@@ -8,4 +8,5 @@ added Image Collection Creator Classes for
     - Surface Reflectance
     - Top Of Atmosphere
  - Added denoise and addCalculator directly to Image Collection Class
+ - Added a client tool to aid in the selection of swath images from sentinel 1
  
