@@ -28,7 +28,7 @@ class __ImageCollection(ee.ImageCollection):
         """
         fmt = "YYYY-MM-dd" if fmt is None else fmt
 
-        def add_f_date(image: ee.Iamge):
+        def add_f_date(image: ee.Image):
             return image.set("date", image.date().format(fmt))
 
         return self.map(add_f_date)
@@ -50,7 +50,7 @@ class __ImageCollection(ee.ImageCollection):
             img = ee.Image(image)
             return ee.Feature(img.geometry(), img.toDictionary())
 
-        as_list = self.tolist(self.size()).map(to_feature)
+        as_list = self.toList(self.size()).map(to_feature)
         return ee.FeatureCollection(as_list)
 
 
