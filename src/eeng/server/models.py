@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import List, Dict, Union
 import ee
 
@@ -24,15 +25,15 @@ class RandomForestModel:
         self.seed = seed
         self.outputmode = "CLASSIFICATION"
         self._model = ee.Classifier.smileRandomForest(
-            numberOfTrees=self.numberOfTrees,
-            variablesPerSplit=self.variablesPerSplit,
-            minLeafPopulation=self.minLeafPopulation,
-            bagFraction=self.bagFraction,
-            maxNodes=self.maxNodes,
-            seed=self.seed,
+            **{
+                "numberOfTrees": self.numberOfTrees,
+                "variablesPerSplit": self.variablesPerSplit,
+                "minLeafPopulation": self.minLeafPopulation,
+                "bagFraction": self.bagFraction,
+                "maxNodes": self.maxNodes,
+                "seed": self.seed,
+            }
         )
-
-        self.classifier = None
 
     @property
     def model(self):
@@ -48,8 +49,8 @@ class RandomForestModel:
             raise ValueError(
                 f"outputmode must be either 'classification' or 'regression' not {outputmode}"
             )
-        self.outputmode = outputmode
-        self._model = self._model.setOutputMode(self.outputmode.upper())
+        self.outputmode = outputmode.upper()
+        self._model = self._model.setOutputMode(self.outputmode)
 
     def fit(
         self,
