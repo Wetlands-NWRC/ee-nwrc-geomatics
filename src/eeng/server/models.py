@@ -22,12 +22,34 @@ class RandomForestModel:
         self.bagFraction = bag_frac
         self.maxNodes = max_nodes
         self.seed = seed
+        self.outputmode = "CLASSIFICATION"
+        self._model = ee.Classifier.smileRandomForest(
+            numberOfTrees=self.numberOfTrees,
+            variablesPerSplit=self.variablesPerSplit,
+            minLeafPopulation=self.minLeafPopulation,
+            bagFraction=self.bagFraction,
+            maxNodes=self.maxNodes,
+            seed=self.seed,
+        )
 
-        self._model = ee.Classifier.smileRandomForest(**self.__dict__)
+        self.classifier = None
 
     @property
     def model(self):
         return self._model
+
+    @property
+    def set_output_mode(self):
+        return self.outputmode
+
+    @set_output_mode.setter
+    def set_output_mode(self, outputmode):
+        if outputmode.lower() not in ["classification", "multiprobability"]:
+            raise ValueError(
+                f"outputmode must be either 'classification' or 'regression' not {outputmode}"
+            )
+        self.outputmode = outputmode
+        self._model = self._model.setOutputMode(self.outputmode.upper())
 
     def fit(
         self,
