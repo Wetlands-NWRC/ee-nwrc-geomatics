@@ -3,7 +3,7 @@ import ee
 from typing import List, Dict, Union
 from abc import ABC, abstractmethod
 
-from eeng.server.models import RandomForestModel, Model
+from eeng.server.models import RandomForestModel
 
 
 TrainingData = ee.FeatureCollection
