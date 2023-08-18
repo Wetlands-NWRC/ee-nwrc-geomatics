@@ -35,6 +35,9 @@ class RandomForestModel:
             }
         )
 
+    def __repr__(self) -> str:
+        return f"RandomForestModel(n_trees={self.numberOfTrees}, var_per_split={self.variablesPerSplit}, min_leaf_pop={self.minLeafPopulation}, bag_frac={self.bagFraction},max_nodes={self.maxNodes}, seed={self.seed})"
+
     @property
     def model(self):
         return self._model

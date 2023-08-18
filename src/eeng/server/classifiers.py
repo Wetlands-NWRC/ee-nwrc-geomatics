@@ -11,8 +11,20 @@ ColumnName = str
 
 
 class RandomForestClassification:
-    def __init__(self, model: RandomForestModel):
-        self.__model = model.set_output_mode = "CLASSIFICATION"
+    def __init__(self):
+        self.model = RandomForestModel()
+
+    @property
+    def model(self):
+        return self.model
+
+    @model.setter
+    def model(self, model):
+        if not isinstance(model, RandomForestModel):
+            raise ValueError(
+                f"model must be a RandomForestModel instance not {type(model)}"
+            )
+        self.model = model.set_output_mode = "CLASSIFICATION"
 
     def fit(
         self,
@@ -68,8 +80,3 @@ class RandomForestMultiProbability:
                 "Classifier has not been trained or applied. Call the fit and apply methods before calling get_probability"
             )
         return self.array_image.arrayFlatten([band_names])
-
-
-ee.Initialize()
-rf_model = RandomForestModel()
-rfmp = RandomForestMultiProbability(model=rf_model)
