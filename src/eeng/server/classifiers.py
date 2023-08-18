@@ -10,28 +10,6 @@ TrainingData = ee.FeatureCollection
 ColumnName = str
 
 
-class Classifier(ABC):
-    @abstractmethod
-    def __init__(self, model: Model):
-        self.model = model
-        self.classifier = None
-
-    @abstractmethod
-    def fit(
-        self,
-        features: TrainingData,
-        classProperty: ColumnName,
-        inputProperties: List[ColumnName],
-    ):
-        pass
-
-    @abstractmethod
-    def apply(
-        self, X: Union[ee.Image, ee.FeatureCollection]
-    ) -> Union[ee.Image, ee.FeatureCollection]:
-        pass
-
-
 class RandomForestClassification:
     def __init__(self, model: RandomForestModel):
         self.__model = model.set_output_mode = "CLASSIFICATION"
