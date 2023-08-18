@@ -10,4 +10,4 @@ added Image Collection Creator Classes for
  - Added denoise and addCalculator directly to Image Collection Class
  - Added a client tool to aid in the selection of swath images from sentinel 1
  - Added Image Collection to feature collection tools
- 
+ - added set output mode for random forest model 
