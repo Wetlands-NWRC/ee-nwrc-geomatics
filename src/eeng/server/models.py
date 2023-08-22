@@ -23,7 +23,6 @@ class RandomForestModel:
         self.bagFraction = bag_frac
         self.maxNodes = max_nodes
         self.seed = seed
-        self.outputmode = "CLASSIFICATION"
         self._model = ee.Classifier.smileRandomForest(
             **{
                 "numberOfTrees": self.numberOfTrees,
@@ -34,6 +33,7 @@ class RandomForestModel:
                 "seed": self.seed,
             }
         )
+        self._output_mode = "CLASSIFICATION"
 
     def __repr__(self) -> str:
         return f"RandomForestModel(n_trees={self.numberOfTrees}, var_per_split={self.variablesPerSplit}, min_leaf_pop={self.minLeafPopulation}, bag_frac={self.bagFraction},max_nodes={self.maxNodes}, seed={self.seed})"
@@ -43,17 +43,13 @@ class RandomForestModel:
         return self._model
 
     @property
-    def set_output_mode(self):
-        return self.outputmode
+    def output_mode(self):
+        return self._output_mode
 
-    @set_output_mode.setter
-    def set_output_mode(self, outputmode):
-        if outputmode.lower() not in ["classification", "multiprobability"]:
-            raise ValueError(
-                f"outputmode must be either 'classification' or 'regression' not {outputmode}"
-            )
-        self.outputmode = outputmode.upper()
-        self._model = self._model.setOutputMode(self.outputmode)
+    @output_mode.setter
+    def output_mode(self, mode):
+        self._output_mode = mode
+        self._model = self._model.setOutputMode(self._output_mode)
 
     def fit(
         self,
@@ -71,3 +67,56 @@ class RandomForestModel:
             return X.classify(self._model).uint8()
 
         return X.classify(self._model)
+
+
+class RandomForestClassifier:
+    def __init__(
+        self,
+        n_trees: int = 1000,
+        var_per_split: int = None,
+        min_leaf_pop: int = 1,
+        bag_frac: float = 0.5,
+        max_nodes: int = None,
+        seed: int = 0,
+    ) -> None:
+        self.numberOfTrees = n_trees
+        self.variablesPerSplit = var_per_split
+        self.minLeafPopulation = min_leaf_pop
+        self.bagFraction = bag_frac
+        self.maxNodes = max_nodes
+        self.seed = seed
+
+        # private attributes
+        self._rf_model = ee.Classifier.smileRandomForest(
+            **{
+                "numberOfTrees": n_trees,
+                "variablesPerSplit": var_per_split,
+                "minLeafPopulation": min_leaf_pop,
+                "bagFraction": bag_frac,
+                "maxNodes": max_nodes,
+                "seed": seed,
+            }
+        )
+        self._output_mode = "CLASSIFICATION"
+        self._classifier = None
+
+    @property
+    def rf_model(self):
+        return self._rf_model
+
+    @property
+    def output_mode(self):
+        return self._output_mode
+
+    @output_mode.setter
+    def output_mode(self, mode):
+        self._output_mode = mode
+        self._rf_model = self._rf_model.setOutputMode(self._output_mode)
+
+    @property
+    def classifier(self):
+        return self._classifier
+
+    @classifier.setter
+    def classifier(self, classifier):
+        self._classifier = classifier
